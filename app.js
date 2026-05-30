@@ -144,9 +144,16 @@ document.getElementById('addTitleBtn').addEventListener('click', () => {
   const logicalWidth = canvas.logicalWidth || 1920;
   const logicalHeight = canvas.logicalHeight || 1080;
   
-  const textValue = document.getElementById('eventTitleInput').value || '행사 제목을 입력하세요';
+  let textValue = document.getElementById('eventTitleInput').value || '행사 제목을 입력하세요';
   const font = document.getElementById('titleFontSelect').value;
   const color = document.getElementById('titleColorPicker').value;
+  
+  const directionSelect = document.getElementById('titleDirectionSelect');
+  const isVertical = directionSelect && directionSelect.value === 'vertical';
+  
+  if (isVertical) {
+    textValue = textValue.replace(/\n/g, ' ').split('').join('\n');
+  }
 
   const text = new fabric.IText(textValue, {
     left: logicalWidth / 2,
@@ -172,9 +179,16 @@ document.getElementById('addDateBtn').addEventListener('click', () => {
   const logicalWidth = canvas.logicalWidth || 1920;
   const logicalHeight = canvas.logicalHeight || 1080;
   
-  const textValue = document.getElementById('eventDateInput').value || '행사 일자 및 장소';
+  let textValue = document.getElementById('eventDateInput').value || '행사 일자 및 장소';
   const font = document.getElementById('dateFontSelect').value;
   const color = document.getElementById('dateColorPicker').value;
+
+  const directionSelect = document.getElementById('dateDirectionSelect');
+  const isVertical = directionSelect && directionSelect.value === 'vertical';
+  
+  if (isVertical) {
+    textValue = textValue.replace(/\n/g, ' ').split('').join('\n');
+  }
 
   const text = new fabric.IText(textValue, {
     left: logicalWidth / 2,
