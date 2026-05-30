@@ -335,3 +335,32 @@ button {
 .export-btn:hover {
   background: linear-gradient(135deg, #2563eb, #7c3aed);
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  body {
+    height: auto;
+    overflow-y: auto;
+  }
+  
+  .app-container {
+    flex-direction: column;
+    height: auto;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .left-panel, .right-panel {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .center-panel {
+    min-height: 60vh;
+  }
+  
+  .canvas-wrapper {
+    min-height: 400px;
+  }
+}
+
