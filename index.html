@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Banner Studio</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Fabric.js via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Left Panel: AI Generator -->
+    <aside class="panel left-panel">
+      <div class="panel-header">
+        <h2>AI 디자인 생성</h2>
+        <p>원하는 테마와 느낌을 입력하세요.</p>
+      </div>
+      
+      <div class="input-group">
+        <textarea id="promptInput" placeholder="예: 우주 배경의 몽환적인 파란색 테마, 빛나는 별..."></textarea>
+        <button id="generateBtn" class="primary-btn">디자인 생성하기</button>
+      </div>
+
+      <div class="gallery-container">
+        <h3>생성된 시안 (클릭하여 편집)</h3>
+        <div id="loadingIndicator" class="hidden">
+          <div class="spinner"></div>
+          <p>AI가 디자인을 구상 중입니다...</p>
+        </div>
+        <div class="gallery" id="designGallery">
+          <!-- Images will be populated here -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Panel: Canvas Area -->
+    <main class="panel center-panel">
+      <div class="canvas-wrapper">
+        <canvas id="mainCanvas"></canvas>
+      </div>
+      
+      <div class="canvas-controls">
+        <p class="instruction">
+          <span class="icon">✨</span> 
+          이미지를 클릭하면 크기 조절과 회전이 가능합니다.
+        </p>
+        <div class="action-buttons">
+            <button id="addTextBtn" class="secondary-btn">텍스트 추가</button>
+            <button id="clearCanvasBtn" class="danger-btn">초기화</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Panel: Size & Export -->
+    <aside class="panel right-panel">
+      <div class="panel-header">
+        <h2>캔버스 설정</h2>
+      </div>
+
+      <div class="setting-group">
+        <label for="presetSize">추천 사이즈</label>
+        <select id="presetSize">
+          <option value="1920x1080">유튜브 썸네일 (1920x1080)</option>
+          <option value="1280x720">웹 배너 (1280x720)</option>
+          <option value="1080x1080">인스타그램 (1080x1080)</option>
+          <option value="custom">직접 입력</option>
+        </select>
+      </div>
+
+      <div class="setting-group size-inputs">
+        <div class="input-col">
+          <label for="canvasWidth">가로 (px)</label>
+          <input type="number" id="canvasWidth" value="1920">
+        </div>
+        <div class="icon-cross">×</div>
+        <div class="input-col">
+          <label for="canvasHeight">세로 (px)</label>
+          <input type="number" id="canvasHeight" value="1080">
+        </div>
+      </div>
+      <button id="applySizeBtn" class="secondary-btn">사이즈 적용</button>
+
+      <div class="export-section">
+        <button id="exportBtn" class="primary-btn export-btn">
+          <span>고해상도 다운로드</span>
+          <span class="export-icon">↓</span>
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
