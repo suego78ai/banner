@@ -106,19 +106,26 @@ if (presetSizeSelect) {
 }
 
 // ==========================================
-// Center Panel: Controls (Text, Clear)
+// Text Controls
 // ==========================================
+const fontFamilySelect = document.getElementById('fontFamilySelect');
+const textColorPicker = document.getElementById('textColorPicker');
+
 document.getElementById('addTextBtn').addEventListener('click', () => {
   const logicalWidth = canvas.logicalWidth || 1920;
   const logicalHeight = canvas.logicalHeight || 1080;
+  
+  const font = fontFamilySelect ? fontFamilySelect.value : 'Inter';
+  const color = textColorPicker ? textColorPicker.value : '#ffffff';
+
   const text = new fabric.IText('새로운 텍스트', {
     left: logicalWidth / 2,
     top: logicalHeight / 2,
     originX: 'center',
     originY: 'center',
-    fontFamily: 'Inter',
-    fontSize: 80,
-    fill: '#ffffff',
+    fontFamily: font,
+    fontSize: 100,
+    fill: color,
     shadow: new fabric.Shadow({
       color: 'rgba(0,0,0,0.5)',
       blur: 10,
@@ -129,6 +136,43 @@ document.getElementById('addTextBtn').addEventListener('click', () => {
   canvas.add(text);
   canvas.setActiveObject(text);
 });
+
+if (fontFamilySelect) {
+  fontFamilySelect.addEventListener('change', (e) => {
+    const activeObj = canvas.getActiveObject();
+    if (activeObj && activeObj.type === 'i-text') {
+      activeObj.set('fontFamily', e.target.value);
+      canvas.renderAll();
+    }
+  });
+}
+
+if (textColorPicker) {
+  textColorPicker.addEventListener('input', (e) => {
+    const activeObj = canvas.getActiveObject();
+    if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
+      activeObj.set('fill', e.target.value);
+      canvas.renderAll();
+    }
+  });
+}
+
+canvas.on('selection:created', updateTextControls);
+canvas.on('selection:updated', updateTextControls);
+
+function updateTextControls() {
+  const activeObj = canvas.getActiveObject();
+  if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
+    if (fontFamilySelect && activeObj.fontFamily) {
+      fontFamilySelect.value = activeObj.fontFamily;
+    }
+    if (textColorPicker && activeObj.fill && typeof activeObj.fill === 'string') {
+      if (activeObj.fill.startsWith('#')) {
+        textColorPicker.value = activeObj.fill.substring(0, 7);
+      }
+    }
+  }
+}
 
 const deleteObjBtn = document.getElementById('deleteObjBtn');
 if (deleteObjBtn) {

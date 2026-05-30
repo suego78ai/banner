@@ -8,7 +8,7 @@
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;700&family=Black+Han+Sans&family=Jua&family=Do+Hyeon&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
   <!-- Fabric.js via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 </head>
@@ -53,6 +53,24 @@
           <!-- Images will be populated here -->
         </div>
       </div>
+      <div class="panel-header" style="margin-top: 1.5rem;">
+        <h2>텍스트 추가 및 편집</h2>
+        <p>무료 폰트와 색상을 선택하세요.</p>
+      </div>
+      <div class="input-group" style="margin-bottom: 1rem;">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <select id="fontFamilySelect" style="flex: 1; padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); cursor: pointer;">
+            <option value="Inter">Inter (기본)</option>
+            <option value="Noto Sans KR">Noto Sans (고딕)</option>
+            <option value="Black Han Sans">Black Han Sans (굵은고딕)</option>
+            <option value="Do Hyeon">Do Hyeon (도현체)</option>
+            <option value="Jua">Jua (주아체)</option>
+            <option value="Nanum Pen Script">Nanum Pen Script (손글씨)</option>
+          </select>
+          <input type="color" id="textColorPicker" value="#ffffff" style="width: 40px; height: 38px; padding: 0; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
+        </div>
+        <button id="addTextBtn" class="secondary-btn">텍스트 추가</button>
+      </div>
     </aside>
 
     <!-- Center Panel: Canvas Area -->
@@ -67,7 +85,6 @@
           이미지를 클릭하면 크기 조절과 회전이 가능합니다. (Delete 키로 삭제 가능)
         </p>
         <div class="action-buttons">
-            <button id="addTextBtn" class="secondary-btn">텍스트 추가</button>
             <button id="deleteObjBtn" class="danger-btn">선택 삭제</button>
             <button id="clearCanvasBtn" class="danger-btn">전체 초기화</button>
         </div>
