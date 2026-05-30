@@ -306,105 +306,163 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ==========================================
-// Left Panel: Mock AI Generation
+// Left Panel: AI Generation (Stability AI Image-to-Image)
 // ==========================================
 const promptInput = document.getElementById('promptInput');
 const generateBtn = document.getElementById('generateBtn');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const designGallery = document.getElementById('designGallery');
 
-generateBtn.addEventListener('click', () => {
+const apiKeyInput = document.getElementById('apiKeyInput');
+if (apiKeyInput) {
+  apiKeyInput.value = localStorage.getItem('stability_api_key') || '';
+  apiKeyInput.addEventListener('input', (e) => {
+    localStorage.setItem('stability_api_key', e.target.value);
+  });
+}
+
+const strengthRange = document.getElementById('imageStrengthRange');
+const strengthVal = document.getElementById('imageStrengthVal');
+if (strengthRange && strengthVal) {
+  strengthRange.addEventListener('input', (e) => {
+    strengthVal.textContent = e.target.value;
+  });
+}
+
+generateBtn.addEventListener('click', async () => {
   const prompt = promptInput.value.trim();
   if (!prompt) {
     alert("원하는 느낌이나 테마를 입력해주세요!");
     return;
   }
 
+  const apiKey = document.getElementById('apiKeyInput') ? document.getElementById('apiKeyInput').value.trim() : '';
+  if (!apiKey) {
+    alert("Stability AI API Key를 입력해주세요.");
+    return;
+  }
+
+  const dsiSelect = document.getElementById('dsiImageSelect');
+  const referenceUrl = dsiSelect ? dsiSelect.value : '';
+  if (!referenceUrl) {
+    alert("참고할 DSI 이미지를 선택해주세요.");
+    return;
+  }
+
+  const imageStrength = parseFloat(document.getElementById('imageStrengthRange').value) || 0.35;
+
   // Show loading
   designGallery.innerHTML = '';
   loadingIndicator.classList.remove('hidden');
   generateBtn.disabled = true;
 
-  // Using Pollinations AI for actual image generation based on user prompt
-  const logicalWidth = canvas.logicalWidth || 1920;
-  const logicalHeight = canvas.logicalHeight || 1080;
-  
-  // Calculate AI dimensions keeping the exact same aspect ratio as the canvas, 
-  // but capping the maximum dimension around 1200px to ensure the API doesn't fail or timeout.
-  const MAX_AI_DIMENSION = 1200;
-  let aiWidth = logicalWidth;
-  let aiHeight = logicalHeight;
-  
-  if (aiWidth > MAX_AI_DIMENSION || aiHeight > MAX_AI_DIMENSION) {
-    const scale = Math.min(MAX_AI_DIMENSION / aiWidth, MAX_AI_DIMENSION / aiHeight);
-    aiWidth = Math.round(aiWidth * scale);
-    aiHeight = Math.round(aiHeight * scale);
-  }
-
-  const imageUrls = [];
-  for (let i = 0; i < 3; i++) {
-    const seed = Math.floor(Math.random() * 100000);
-    // Add "banner background high quality" to guide the AI for better background results
-    const enhancedPrompt = prompt + " banner background high quality empty space";
-    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=${aiWidth}&height=${aiHeight}&nologo=true&seed=${seed}`;
-    imageUrls.push(url);
-  }
-
-  let loadedCount = 0;
-  
-  imageUrls.forEach((url, i) => {
-    const item = document.createElement('div');
-    item.className = 'design-item';
+  try {
+    // 1. Fetch the selected DSI image as Blob
+    const imgResponse = await fetch(referenceUrl);
+    if (!imgResponse.ok) throw new Error("이미지를 불러올 수 없습니다.");
+    let imageBlob = await imgResponse.blob();
     
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.alt = `AI Design ${i+1}`;
+    // 2. Resize to standard dimensions for Stability v1-5 (multiples of 64, max ~768px for fast/stable generation)
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    const tempImg = new Image();
+    tempImg.crossOrigin = 'anonymous';
     
-    img.onload = () => {
-      loadedCount++;
-      if (loadedCount === 1) {
-        // Hide loading as soon as first image is ready
-        loadingIndicator.classList.add('hidden');
-        generateBtn.disabled = false;
-      }
+    const resizedBlob = await new Promise((resolve, reject) => {
+      tempImg.onload = () => {
+        let width = tempImg.width;
+        let height = tempImg.height;
+        const maxDim = 768; 
+        
+        if (width > maxDim || height > maxDim) {
+          const ratio = Math.min(maxDim / width, maxDim / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        
+        // Ensure multiples of 64
+        width = Math.round(width / 64) * 64;
+        height = Math.round(height / 64) * 64;
+        width = Math.max(64, width);
+        height = Math.max(64, height);
+        
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        tempCtx.drawImage(tempImg, 0, 0, width, height);
+        
+        tempCanvas.toBlob((blob) => {
+          resolve(blob);
+        }, 'image/png');
+      };
+      tempImg.onerror = reject;
+      tempImg.src = URL.createObjectURL(imageBlob);
+    });
+
+    const formData = new FormData();
+    formData.append('init_image', resizedBlob);
+    formData.append('init_image_mode', 'IMAGE_STRENGTH');
+    formData.append('image_strength', imageStrength);
+    formData.append('text_prompts[0][text]', prompt);
+    formData.append('samples', 1);
+
+    const apiResponse = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-v1-5/image-to-image', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: formData
+    });
+
+    if (!apiResponse.ok) {
+      const errorText = await apiResponse.text();
+      throw new Error(`API 오류: ${apiResponse.status} ${errorText}`);
+    }
+
+    const resultData = await apiResponse.json();
+    
+    // Display result
+    resultData.artifacts.forEach((artifact) => {
+      const item = document.createElement('div');
+      item.className = 'design-item';
+      
+      const img = new Image();
+      img.src = `data:image/png;base64,${artifact.base64}`;
+      
       item.appendChild(img);
       designGallery.appendChild(item);
-    };
-    
-    img.onerror = () => {
-      loadedCount++;
-      if (loadedCount === 1) {
-        loadingIndicator.classList.add('hidden');
-        generateBtn.disabled = false;
-      }
-    };
-    
-    img.src = url;
 
-    // Click event to set as CANVAS BACKGROUND
-    item.addEventListener('click', () => {
-      fabric.Image.fromURL(url, (fabricImg) => {
-        const logicalWidth = canvas.logicalWidth || 1920;
-        const logicalHeight = canvas.logicalHeight || 1080;
-        
-        // Calculate scale to exactly COVER the logical canvas dimensions
-        const scaleX = logicalWidth / fabricImg.width;
-        const scaleY = logicalHeight / fabricImg.height;
-        const scale = Math.max(scaleX, scaleY);
-        
-        fabricImg.set({
-          originX: 'center',
-          originY: 'center',
-          left: logicalWidth / 2,
-          top: logicalHeight / 2,
-          scaleX: scale,
-          scaleY: scale
+      // Click event to set as CANVAS BACKGROUND
+      item.addEventListener('click', () => {
+        fabric.Image.fromURL(img.src, (fabricImg) => {
+          const logicalWidth = canvas.logicalWidth || 1920;
+          const logicalHeight = canvas.logicalHeight || 1080;
+          
+          const scaleX = logicalWidth / fabricImg.width;
+          const scaleY = logicalHeight / fabricImg.height;
+          const scale = Math.max(scaleX, scaleY);
+          
+          fabricImg.set({
+            originX: 'center',
+            originY: 'center',
+            left: logicalWidth / 2,
+            top: logicalHeight / 2,
+            scaleX: scale,
+            scaleY: scale
+          });
+          
+          canvas.setBackgroundImage(fabricImg, canvas.renderAll.bind(canvas));
         });
-        
-        canvas.setBackgroundImage(fabricImg, canvas.renderAll.bind(canvas));
-      }, { crossOrigin: 'anonymous' });
+      });
     });
-  });
+
+  } catch (error) {
+    console.error(error);
+    alert("이미지 생성 중 오류가 발생했습니다.\n" + error.message);
+  } finally {
+    loadingIndicator.classList.add('hidden');
+    generateBtn.disabled = false;
+  }
 });
 
 // ==========================================
@@ -415,11 +473,9 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   canvas.discardActiveObject();
   canvas.renderAll();
 
-  // Make canvas a bit larger for high-res export or just use current res
+  // Make canvas output exactly match the logical size (which represents the physical mm size)
   const logicalWidth = canvas.logicalWidth || 1920;
-  // If the unit is mm, smaller values like 420mm need to be scaled up for a high-res pixel export.
-  // We ensure a minimum export width of 2500px for good print quality.
-  const exportTargetWidth = Math.max(logicalWidth, 2500); 
+  const exportTargetWidth = logicalWidth; 
   const multiplier = exportTargetWidth / canvas.getWidth();
 
   const dataURL = canvas.toDataURL({
