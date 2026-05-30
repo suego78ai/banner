@@ -249,7 +249,8 @@ if (logoSelect) {
 
   logoSelect.addEventListener("change", (e) => {
     if (logoPreview && logoPreviewPlaceholder) {
-      logoPreview.src = e.target.value;
+      const encodedUrl = encodeURI(e.target.value);
+      logoPreview.src = encodedUrl;
       logoPreview.style.display = "block";
       logoPreviewPlaceholder.style.display = "none";
     }
@@ -265,7 +266,8 @@ if (addLogoBtn) {
       return;
     }
     
-    fabric.Image.fromURL(val, function(img) {
+    const encodedUrl = encodeURI(val);
+    fabric.Image.fromURL(encodedUrl, function(img) {
       // Scale down if logo is too large
       const maxLogoSize = 250;
       if (img.width > maxLogoSize || img.height > maxLogoSize) {
