@@ -33,19 +33,76 @@ setTimeout(resizeCanvasVisual, 100);
 // ==========================================
 // Right Panel: Size Configuration
 // ==========================================
+const categorySelect = document.getElementById('categorySelect');
 const presetSizeSelect = document.getElementById('presetSize');
 const widthInput = document.getElementById('canvasWidth');
 const heightInput = document.getElementById('canvasHeight');
 const applySizeBtn = document.getElementById('applySizeBtn');
 
-presetSizeSelect.addEventListener('change', (e) => {
-  const val = e.target.value;
-  if (val !== 'custom') {
-    const [w, h] = val.split('x');
-    widthInput.value = w;
-    heightInput.value = h;
-  }
-});
+const sizeData = {
+  banner: [
+    { label: "8100*1100 - 정문(풋살)", value: "8100x1100" },
+    { label: "7900*1100 - 정문(기숙사)", value: "7900x1100" },
+    { label: "7000*900 - 3~5호관", value: "7000x900" },
+    { label: "5000*600 - 8호관", value: "5000x600" },
+    { label: "5000*700 - 세미나실", value: "5000x700" },
+    { label: "4000*600 - 강의실", value: "4000x600" },
+    { label: "입시면접용 실내외", value: "custom" }
+  ],
+  xbanner: [
+    { label: "600*1800 - 실내외", value: "600x1800" }
+  ],
+  notice: [
+    { label: "A1(610*914) - 실내외", value: "610x914" },
+    { label: "A2(420*594) - 실내외", value: "420x594" }
+  ],
+  poster: [
+    { label: "A1(610*914) - 실내외", value: "610x914" },
+    { label: "A2(420*594) - 실내외", value: "420x594" }
+  ],
+  signboard: [
+    { label: "A1(610*914) - 실내외", value: "610x914" },
+    { label: "A2(420*594) - 실내외", value: "420x594" }
+  ],
+  prize: [
+    { label: "A1(610*914) - 실내외", value: "610x914" },
+    { label: "A2(420*594) - 실내외", value: "420x594" }
+  ]
+};
+
+if (categorySelect) {
+  categorySelect.addEventListener('change', (e) => {
+    const category = e.target.value;
+    presetSizeSelect.innerHTML = '<option value="" disabled selected>상세 사이즈를 선택하세요</option>';
+    
+    if (sizeData[category]) {
+      presetSizeSelect.disabled = false;
+      sizeData[category].forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        presetSizeSelect.appendChild(opt);
+      });
+      const customOpt = document.createElement('option');
+      customOpt.value = 'custom';
+      customOpt.textContent = '직접 입력';
+      presetSizeSelect.appendChild(customOpt);
+    } else {
+      presetSizeSelect.disabled = true;
+    }
+  });
+}
+
+if (presetSizeSelect) {
+  presetSizeSelect.addEventListener('change', (e) => {
+    const val = e.target.value;
+    if (val && val !== 'custom') {
+      const [w, h] = val.split('x');
+      widthInput.value = w;
+      heightInput.value = h;
+    }
+  });
+}
 
 applySizeBtn.addEventListener('click', () => {
   const w = parseInt(widthInput.value, 10);
