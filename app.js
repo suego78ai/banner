@@ -35,9 +35,6 @@ setTimeout(resizeCanvasVisual, 100);
 // ==========================================
 const categorySelect = document.getElementById('categorySelect');
 const presetSizeSelect = document.getElementById('presetSize');
-const widthInput = document.getElementById('canvasWidth');
-const heightInput = document.getElementById('canvasHeight');
-const applySizeBtn = document.getElementById('applySizeBtn');
 
 const sizeData = {
   banner: [
@@ -83,10 +80,7 @@ if (categorySelect) {
         opt.textContent = item.label;
         presetSizeSelect.appendChild(opt);
       });
-      const customOpt = document.createElement('option');
-      customOpt.value = 'custom';
-      customOpt.textContent = '직접 입력';
-      presetSizeSelect.appendChild(customOpt);
+
     } else {
       presetSizeSelect.disabled = true;
     }
@@ -98,26 +92,13 @@ if (presetSizeSelect) {
     const val = e.target.value;
     if (val && val !== 'custom') {
       const [w, h] = val.split('x');
-      widthInput.value = w;
-      heightInput.value = h;
+      canvas.setWidth(parseInt(w, 10));
+      canvas.setHeight(parseInt(h, 10));
+      canvas.renderAll();
+      resizeCanvasVisual();
     }
   });
 }
-
-applySizeBtn.addEventListener('click', () => {
-  const w = parseInt(widthInput.value, 10);
-  const h = parseInt(heightInput.value, 10);
-  
-  if (w > 0 && h > 0) {
-    canvas.setWidth(w);
-    canvas.setHeight(h);
-    canvas.renderAll();
-    resizeCanvasVisual();
-    presetSizeSelect.value = 'custom';
-  } else {
-    alert("올바른 사이즈를 입력해주세요.");
-  }
-});
 
 // ==========================================
 // Center Panel: Controls (Text, Clear)
