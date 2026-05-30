@@ -1,6 +1,6 @@
 // Initialize Fabric Canvas
 const canvas = new fabric.Canvas('mainCanvas', {
-  backgroundColor: 'transparent',
+  backgroundColor: '#ffffff',
   preserveObjectStacking: true // Keep selected object on top without messing up z-index permanently
 });
 canvas.logicalWidth = 1920;
@@ -248,7 +248,7 @@ if (deleteObjBtn) {
 document.getElementById('clearCanvasBtn').addEventListener('click', () => {
   if(confirm("캔버스를 초기화하시겠습니까?")) {
     canvas.clear();
-    canvas.setBackgroundColor('transparent', canvas.renderAll.bind(canvas));
+    canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
   }
 });
 
