@@ -191,12 +191,27 @@ generateBtn.addEventListener('click', () => {
   generateBtn.disabled = true;
 
   // Using Pollinations AI for actual image generation based on user prompt
+  const logicalWidth = canvas.logicalWidth || 1920;
+  const logicalHeight = canvas.logicalHeight || 1080;
+  
+  // Calculate AI dimensions keeping the exact same aspect ratio as the canvas, 
+  // but capping the maximum dimension around 1200px to ensure the API doesn't fail or timeout.
+  const MAX_AI_DIMENSION = 1200;
+  let aiWidth = logicalWidth;
+  let aiHeight = logicalHeight;
+  
+  if (aiWidth > MAX_AI_DIMENSION || aiHeight > MAX_AI_DIMENSION) {
+    const scale = Math.min(MAX_AI_DIMENSION / aiWidth, MAX_AI_DIMENSION / aiHeight);
+    aiWidth = Math.round(aiWidth * scale);
+    aiHeight = Math.round(aiHeight * scale);
+  }
+
   const imageUrls = [];
   for (let i = 0; i < 3; i++) {
     const seed = Math.floor(Math.random() * 100000);
     // Add "banner background high quality" to guide the AI for better background results
     const enhancedPrompt = prompt + " banner background high quality empty space";
-    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=1200&height=600&nologo=true&seed=${seed}`;
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=${aiWidth}&height=${aiHeight}&nologo=true&seed=${seed}`;
     imageUrls.push(url);
   }
 
