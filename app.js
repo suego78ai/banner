@@ -209,25 +209,41 @@ document.getElementById('addDateBtn').addEventListener('click', () => {
   canvas.setActiveObject(text);
 });
 
-if (fontFamilySelect) {
-  fontFamilySelect.addEventListener('change', (e) => {
-    const activeObj = canvas.getActiveObject();
-    if (activeObj && activeObj.type === 'i-text') {
-      activeObj.set('fontFamily', e.target.value);
-      canvas.renderAll();
-    }
-  });
-}
+const fontSelects = [
+  document.getElementById('fontFamilySelect'),
+  document.getElementById('titleFontSelect'),
+  document.getElementById('dateFontSelect')
+];
 
-if (textColorPicker) {
-  textColorPicker.addEventListener('input', (e) => {
-    const activeObj = canvas.getActiveObject();
-    if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
-      activeObj.set('fill', e.target.value);
-      canvas.renderAll();
-    }
-  });
-}
+fontSelects.forEach(select => {
+  if (select) {
+    select.addEventListener('change', (e) => {
+      const activeObj = canvas.getActiveObject();
+      if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
+        activeObj.set('fontFamily', e.target.value);
+        canvas.renderAll();
+      }
+    });
+  }
+});
+
+const colorPickers = [
+  document.getElementById('textColorPicker'),
+  document.getElementById('titleColorPicker'),
+  document.getElementById('dateColorPicker')
+];
+
+colorPickers.forEach(picker => {
+  if (picker) {
+    picker.addEventListener('input', (e) => {
+      const activeObj = canvas.getActiveObject();
+      if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
+        activeObj.set('fill', e.target.value);
+        canvas.renderAll();
+      }
+    });
+  }
+});
 
 canvas.on('selection:created', updateTextControls);
 canvas.on('selection:updated', updateTextControls);
@@ -235,13 +251,16 @@ canvas.on('selection:updated', updateTextControls);
 function updateTextControls() {
   const activeObj = canvas.getActiveObject();
   if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
-    if (fontFamilySelect && activeObj.fontFamily) {
-      fontFamilySelect.value = activeObj.fontFamily;
+    if (activeObj.fontFamily) {
+      fontSelects.forEach(select => {
+        if (select) select.value = activeObj.fontFamily;
+      });
     }
-    if (textColorPicker && activeObj.fill && typeof activeObj.fill === 'string') {
-      if (activeObj.fill.startsWith('#')) {
-        textColorPicker.value = activeObj.fill.substring(0, 7);
-      }
+    if (activeObj.fill && typeof activeObj.fill === 'string' && activeObj.fill.startsWith('#')) {
+      const hex = activeObj.fill.substring(0, 7);
+      colorPickers.forEach(picker => {
+        if (picker) picker.value = hex;
+      });
     }
   }
 }
