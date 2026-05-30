@@ -191,16 +191,37 @@ const initText = new fabric.IText('여기에 디자인이 배치됩니다', {
 canvas.add(initText);
 
 // ==========================================
-// Left Panel: Logo Upload
+// Left Panel: Logo Upload (From Repository)
 // ==========================================
-document.getElementById("logoUpload").addEventListener("change", function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+const logoFiles = [
+  "Emblem.jpg", "Emblem.png", "Emblem_White.png", 
+  "Logo Type.jpg", "Logo Type_영어.jpg", "Logo Type_영어.png", "Logo Type_영어_White.png",
+  "Logo Type_한글.jpg", "Logo Type_한글.png", "Logo Type_한글_White.png",
+  "Logo Type_한자.jpg", "Logo Type_한자.png", "Logo Type_한자_White.png",
+  "Signiture.jpg", "Signiture.png", "Signiture_Cyan Blue.jpg", "Signiture_Cyan Blue.png", "Signiture_White.png",
+  "仁.jpg", "仁.png"
+];
 
-  const reader = new FileReader();
-  reader.onload = function(f) {
-    const data = f.target.result;
-    fabric.Image.fromURL(data, function(img) {
+const logoSelect = document.getElementById("logoSelect");
+if (logoSelect) {
+  logoFiles.forEach(file => {
+    const opt = document.createElement("option");
+    opt.value = "jpg/" + file;
+    opt.textContent = file;
+    logoSelect.appendChild(opt);
+  });
+}
+
+const addLogoBtn = document.getElementById("addLogoBtn");
+if (addLogoBtn) {
+  addLogoBtn.addEventListener("click", () => {
+    const val = logoSelect.value;
+    if (!val) {
+      alert("로고를 먼저 선택해주세요.");
+      return;
+    }
+    
+    fabric.Image.fromURL(val, function(img) {
       // Scale down if logo is too large
       const maxLogoSize = 250;
       if (img.width > maxLogoSize || img.height > maxLogoSize) {
@@ -218,8 +239,7 @@ document.getElementById("logoUpload").addEventListener("change", function(e) {
       canvas.add(img);
       canvas.setActiveObject(img);
       canvas.renderAll();
-    });
-  };
-  reader.readAsDataURL(file);
-});
+    }, { crossOrigin: 'anonymous' });
+  });
+}
 

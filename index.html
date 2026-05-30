@@ -18,12 +18,15 @@
     <!-- Left Panel: AI Generator -->
     <aside class="panel left-panel">
       <div class="panel-header">
-        <h2>로고 업로드</h2>
-        <p>내 로고 이미지를 캔버스 좌측 상단에 추가합니다.</p>
+        <h2>저장소 로고 추가</h2>
+        <p>프로젝트 'jpg' 폴더 내의 로고를 추가합니다.</p>
       </div>
       
       <div class="input-group" style="margin-bottom: 2rem;">
-        <input type="file" id="logoUpload" accept="image/png, image/jpeg" style="padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); width: 100%; cursor: pointer;" />
+        <select id="logoSelect" style="padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); width: 100%; cursor: pointer;">
+          <option value="" disabled selected>로고 파일을 선택하세요...</option>
+        </select>
+        <button id="addLogoBtn" class="secondary-btn">캔버스에 로고 추가</button>
       </div>
 
       <div class="panel-header">
