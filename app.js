@@ -190,49 +190,71 @@ generateBtn.addEventListener('click', () => {
   loadingIndicator.classList.remove('hidden');
   generateBtn.disabled = true;
 
-  // Simulate API Delay
-  setTimeout(() => {
-    loadingIndicator.classList.add('hidden');
-    generateBtn.disabled = false;
-    
-    // Generate 3 mock designs
-    for (let i = 0; i < 3; i++) {
-      const seed = Math.floor(Math.random() * 10000);
-      const imageUrl = `https://picsum.photos/seed/${seed}/800/400`;
-      
-      const item = document.createElement('div');
-      item.className = 'design-item';
-      item.innerHTML = `<img src="${imageUrl}" alt="AI Design ${i+1}" crossorigin="anonymous">`;
-      
-      // Click event to add to canvas
-      item.addEventListener('click', () => {
-        fabric.Image.fromURL(imageUrl, (img) => {
-          // Scale image to fit canvas width if it's too large
-          let scale = 1;
-          const logicalWidth = canvas.logicalWidth || 1920;
-          const logicalHeight = canvas.logicalHeight || 1080;
-          if (img.width > logicalWidth) {
-            scale = logicalWidth / img.width;
-          }
-          
-          img.set({
-            left: logicalWidth / 2,
-            top: logicalHeight / 2,
-            originX: 'center',
-            originY: 'center',
-            scaleX: scale,
-            scaleY: scale
-          });
-          
-          canvas.add(img);
-          canvas.setActiveObject(img);
-          canvas.renderAll();
-        }, { crossOrigin: 'anonymous' });
-      });
+  // Using Pollinations AI for actual image generation based on user prompt
+  const imageUrls = [];
+  for (let i = 0; i < 3; i++) {
+    const seed = Math.floor(Math.random() * 100000);
+    // Add "banner background high quality" to guide the AI for better background results
+    const enhancedPrompt = prompt + " banner background high quality empty space";
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=1200&height=600&nologo=true&seed=${seed}`;
+    imageUrls.push(url);
+  }
 
+  let loadedCount = 0;
+  
+  imageUrls.forEach((url, i) => {
+    const item = document.createElement('div');
+    item.className = 'design-item';
+    
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.alt = `AI Design ${i+1}`;
+    
+    img.onload = () => {
+      loadedCount++;
+      if (loadedCount === 1) {
+        // Hide loading as soon as first image is ready
+        loadingIndicator.classList.add('hidden');
+        generateBtn.disabled = false;
+      }
+      item.appendChild(img);
       designGallery.appendChild(item);
-    }
-  }, 2000);
+    };
+    
+    img.onerror = () => {
+      loadedCount++;
+      if (loadedCount === 1) {
+        loadingIndicator.classList.add('hidden');
+        generateBtn.disabled = false;
+      }
+    };
+    
+    img.src = url;
+
+    // Click event to set as CANVAS BACKGROUND
+    item.addEventListener('click', () => {
+      fabric.Image.fromURL(url, (fabricImg) => {
+        const logicalWidth = canvas.logicalWidth || 1920;
+        const logicalHeight = canvas.logicalHeight || 1080;
+        
+        // Calculate scale to exactly COVER the logical canvas dimensions
+        const scaleX = logicalWidth / fabricImg.width;
+        const scaleY = logicalHeight / fabricImg.height;
+        const scale = Math.max(scaleX, scaleY);
+        
+        fabricImg.set({
+          originX: 'center',
+          originY: 'center',
+          left: logicalWidth / 2,
+          top: logicalHeight / 2,
+          scaleX: scale,
+          scaleY: scale
+        });
+        
+        canvas.setBackgroundImage(fabricImg, canvas.renderAll.bind(canvas));
+      }, { crossOrigin: 'anonymous' });
+    });
+  });
 });
 
 // ==========================================
