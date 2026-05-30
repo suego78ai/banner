@@ -43,32 +43,32 @@ const presetSizeSelect = document.getElementById('presetSize');
 
 const sizeData = {
   banner: [
-    { label: "8100*1100 - 정문(풋살)", value: "8100x1100" },
-    { label: "7900*1100 - 정문(기숙사)", value: "7900x1100" },
-    { label: "7000*900 - 3~5호관", value: "7000x900" },
-    { label: "5000*600 - 8호관", value: "5000x600" },
-    { label: "5000*700 - 세미나실", value: "5000x700" },
-    { label: "4000*600 - 강의실", value: "4000x600" },
+    { label: "8100*1100mm - 정문(풋살)", value: "8100x1100" },
+    { label: "7900*1100mm - 정문(기숙사)", value: "7900x1100" },
+    { label: "7000*900mm - 3~5호관", value: "7000x900" },
+    { label: "5000*600mm - 8호관", value: "5000x600" },
+    { label: "5000*700mm - 세미나실", value: "5000x700" },
+    { label: "4000*600mm - 강의실", value: "4000x600" },
     { label: "입시면접용 실내외", value: "custom" }
   ],
   xbanner: [
-    { label: "600*1800 - 실내외", value: "600x1800" }
+    { label: "600*1800mm - 실내외", value: "600x1800" }
   ],
   notice: [
-    { label: "A1(610*914) - 실내외", value: "610x914" },
-    { label: "A2(420*594) - 실내외", value: "420x594" }
+    { label: "A1 (610*914mm) - 실내외", value: "610x914" },
+    { label: "A2 (420*594mm) - 실내외", value: "420x594" }
   ],
   poster: [
-    { label: "A1(610*914) - 실내외", value: "610x914" },
-    { label: "A2(420*594) - 실내외", value: "420x594" }
+    { label: "A1 (610*914mm) - 실내외", value: "610x914" },
+    { label: "A2 (420*594mm) - 실내외", value: "420x594" }
   ],
   signboard: [
-    { label: "A1(610*914) - 실내외", value: "610x914" },
-    { label: "A2(420*594) - 실내외", value: "420x594" }
+    { label: "A1 (610*914mm) - 실내외", value: "610x914" },
+    { label: "A2 (420*594mm) - 실내외", value: "420x594" }
   ],
   prize: [
-    { label: "A1(610*914) - 실내외", value: "610x914" },
-    { label: "A2(420*594) - 실내외", value: "420x594" }
+    { label: "A1 (610*914mm) - 실내외", value: "610x914" },
+    { label: "A2 (420*594mm) - 실내외", value: "420x594" }
   ]
 };
 
@@ -245,7 +245,10 @@ document.getElementById('exportBtn').addEventListener('click', () => {
 
   // Make canvas a bit larger for high-res export or just use current res
   const logicalWidth = canvas.logicalWidth || 1920;
-  const multiplier = logicalWidth / canvas.getWidth();
+  // If the unit is mm, smaller values like 420mm need to be scaled up for a high-res pixel export.
+  // We ensure a minimum export width of 2500px for good print quality.
+  const exportTargetWidth = Math.max(logicalWidth, 2500); 
+  const multiplier = exportTargetWidth / canvas.getWidth();
 
   const dataURL = canvas.toDataURL({
     format: 'png',
