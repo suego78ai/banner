@@ -49,15 +49,17 @@ body {
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
 }
 
 .left-panel {
-  width: 350px;
-  min-width: 350px;
+  width: 320px;
+  flex-shrink: 0;
 }
 
 .center-panel {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,8 +69,8 @@ body {
 }
 
 .right-panel {
-  width: 300px;
-  min-width: 300px;
+  width: 280px;
+  flex-shrink: 0;
 }
 
 .panel-header {
