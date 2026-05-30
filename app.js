@@ -137,6 +137,64 @@ document.getElementById('addTextBtn').addEventListener('click', () => {
   canvas.setActiveObject(text);
 });
 
+// ==========================================
+// Event Info Controls (Left Panel)
+// ==========================================
+document.getElementById('addTitleBtn').addEventListener('click', () => {
+  const logicalWidth = canvas.logicalWidth || 1920;
+  const logicalHeight = canvas.logicalHeight || 1080;
+  
+  const textValue = document.getElementById('eventTitleInput').value || '행사 제목을 입력하세요';
+  const font = document.getElementById('titleFontSelect').value;
+  const color = document.getElementById('titleColorPicker').value;
+
+  const text = new fabric.IText(textValue, {
+    left: logicalWidth / 2,
+    top: logicalHeight * 0.35,
+    originX: 'center',
+    originY: 'center',
+    fontFamily: font,
+    fontSize: 160,
+    fontWeight: 'bold',
+    fill: color,
+    shadow: new fabric.Shadow({
+      color: 'rgba(0,0,0,0.6)',
+      blur: 15,
+      offsetX: 4,
+      offsetY: 4
+    })
+  });
+  canvas.add(text);
+  canvas.setActiveObject(text);
+});
+
+document.getElementById('addDateBtn').addEventListener('click', () => {
+  const logicalWidth = canvas.logicalWidth || 1920;
+  const logicalHeight = canvas.logicalHeight || 1080;
+  
+  const textValue = document.getElementById('eventDateInput').value || '행사 일자 및 장소';
+  const font = document.getElementById('dateFontSelect').value;
+  const color = document.getElementById('dateColorPicker').value;
+
+  const text = new fabric.IText(textValue, {
+    left: logicalWidth / 2,
+    top: logicalHeight * 0.6,
+    originX: 'center',
+    originY: 'center',
+    fontFamily: font,
+    fontSize: 90,
+    fill: color,
+    shadow: new fabric.Shadow({
+      color: 'rgba(0,0,0,0.6)',
+      blur: 10,
+      offsetX: 2,
+      offsetY: 2
+    })
+  });
+  canvas.add(text);
+  canvas.setActiveObject(text);
+});
+
 if (fontFamilySelect) {
   fontFamilySelect.addEventListener('change', (e) => {
     const activeObj = canvas.getActiveObject();

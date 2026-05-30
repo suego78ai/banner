@@ -34,6 +34,48 @@
         </select>
       </div>
 
+      <div class="panel-header" style="margin-top: 1.5rem;">
+        <h2>행사 정보 추가</h2>
+      </div>
+
+      <div class="setting-group" style="margin-bottom: 1.5rem;">
+        <label for="eventTitleInput">행사 제목</label>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <input type="text" id="eventTitleInput" placeholder="예: 2026 AI 컨퍼런스" style="flex: 1;">
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <select id="titleFontSelect" style="flex: 1; padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); cursor: pointer;">
+            <option value="Black Han Sans">Black Han Sans (굵은고딕)</option>
+            <option value="Inter">Inter (기본)</option>
+            <option value="Noto Sans KR">Noto Sans (고딕)</option>
+            <option value="Do Hyeon">Do Hyeon (도현체)</option>
+            <option value="Jua">Jua (주아체)</option>
+            <option value="Nanum Pen Script">Nanum Pen Script (손글씨)</option>
+          </select>
+          <input type="color" id="titleColorPicker" value="#ffffff" style="width: 40px; height: 38px; padding: 0; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
+        </div>
+        <button id="addTitleBtn" class="secondary-btn">제목 캔버스에 추가</button>
+      </div>
+
+      <div class="setting-group" style="margin-bottom: 1.5rem;">
+        <label for="eventDateInput">행사 일자 / 장소</label>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <input type="text" id="eventDateInput" placeholder="예: 2026. 10. 25 (금) 대강당" style="flex: 1;">
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <select id="dateFontSelect" style="flex: 1; padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); cursor: pointer;">
+            <option value="Noto Sans KR">Noto Sans (고딕)</option>
+            <option value="Inter">Inter (기본)</option>
+            <option value="Black Han Sans">Black Han Sans (굵은고딕)</option>
+            <option value="Do Hyeon">Do Hyeon (도현체)</option>
+            <option value="Jua">Jua (주아체)</option>
+            <option value="Nanum Pen Script">Nanum Pen Script (손글씨)</option>
+          </select>
+          <input type="color" id="dateColorPicker" value="#ffffff" style="width: 40px; height: 38px; padding: 0; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
+        </div>
+        <button id="addDateBtn" class="secondary-btn">일자 캔버스에 추가</button>
+      </div>
+
       <div class="setting-group">
         <label for="presetSize">상세 사이즈 선택</label>
         <select id="presetSize" disabled>
