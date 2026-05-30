@@ -1,10 +1,10 @@
 // Initialize Fabric Canvas
 const canvas = new fabric.Canvas('mainCanvas', {
-  width: 1920,
-  height: 1080,
   backgroundColor: 'transparent',
   preserveObjectStacking: true // Keep selected object on top without messing up z-index permanently
 });
+canvas.logicalWidth = 1920;
+canvas.logicalHeight = 1080;
 
 // Scale the visual container to fit in the panel while keeping internal resolution high
 function resizeCanvasVisual() {
@@ -12,19 +12,24 @@ function resizeCanvasVisual() {
   const container = document.querySelector('.canvas-container');
   
   if (!wrapper || !container) return;
+  
+  const logicalWidth = canvas.logicalWidth || 1920;
+  const logicalHeight = canvas.logicalHeight || 1080;
 
   const wrapperWidth = wrapper.clientWidth - 40; // 40px padding
   const wrapperHeight = wrapper.clientHeight - 40;
   
-  const canvasWidth = canvas.getWidth();
-  const canvasHeight = canvas.getHeight();
+  if (wrapperWidth <= 0 || wrapperHeight <= 0) return;
   
-  const scaleX = wrapperWidth / canvasWidth;
-  const scaleY = wrapperHeight / canvasHeight;
-  const scale = Math.min(scaleX, scaleY, 1); // Don't scale up beyond 1
+  const scaleX = wrapperWidth / logicalWidth;
+  const scaleY = wrapperHeight / logicalHeight;
+  const scale = Math.min(scaleX, scaleY); 
   
-  container.style.transform = `scale(${scale})`;
-  container.style.transformOrigin = 'center center';
+  canvas.setZoom(scale);
+  canvas.setDimensions({
+    width: logicalWidth * scale,
+    height: logicalHeight * scale
+  });
 }
 
 window.addEventListener('resize', resizeCanvasVisual);
@@ -92,10 +97,10 @@ if (presetSizeSelect) {
     const val = e.target.value;
     if (val && val !== 'custom') {
       const [w, h] = val.split('x');
-      canvas.setWidth(parseInt(w, 10));
-      canvas.setHeight(parseInt(h, 10));
-      canvas.renderAll();
+      canvas.logicalWidth = parseInt(w, 10);
+      canvas.logicalHeight = parseInt(h, 10);
       resizeCanvasVisual();
+      canvas.renderAll();
     }
   });
 }
@@ -104,9 +109,11 @@ if (presetSizeSelect) {
 // Center Panel: Controls (Text, Clear)
 // ==========================================
 document.getElementById('addTextBtn').addEventListener('click', () => {
+  const logicalWidth = canvas.logicalWidth || 1920;
+  const logicalHeight = canvas.logicalHeight || 1080;
   const text = new fabric.IText('새로운 텍스트', {
-    left: canvas.width / 2,
-    top: canvas.height / 2,
+    left: logicalWidth / 2,
+    top: logicalHeight / 2,
     originX: 'center',
     originY: 'center',
     fontFamily: 'Inter',
@@ -202,13 +209,15 @@ generateBtn.addEventListener('click', () => {
         fabric.Image.fromURL(imageUrl, (img) => {
           // Scale image to fit canvas width if it's too large
           let scale = 1;
-          if (img.width > canvas.width) {
-            scale = canvas.width / img.width;
+          const logicalWidth = canvas.logicalWidth || 1920;
+          const logicalHeight = canvas.logicalHeight || 1080;
+          if (img.width > logicalWidth) {
+            scale = logicalWidth / img.width;
           }
           
           img.set({
-            left: canvas.width / 2,
-            top: canvas.height / 2,
+            left: logicalWidth / 2,
+            top: logicalHeight / 2,
             originX: 'center',
             originY: 'center',
             scaleX: scale,
@@ -235,10 +244,13 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   canvas.renderAll();
 
   // Make canvas a bit larger for high-res export or just use current res
+  const logicalWidth = canvas.logicalWidth || 1920;
+  const multiplier = logicalWidth / canvas.getWidth();
+
   const dataURL = canvas.toDataURL({
     format: 'png',
     quality: 1,
-    multiplier: 1 // can be increased for higher res
+    multiplier: multiplier 
   });
 
   const link = document.createElement('a');
