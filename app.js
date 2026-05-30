@@ -85,10 +85,43 @@ document.getElementById('addTextBtn').addEventListener('click', () => {
   canvas.setActiveObject(text);
 });
 
+const deleteObjBtn = document.getElementById('deleteObjBtn');
+if (deleteObjBtn) {
+  deleteObjBtn.addEventListener('click', () => {
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length) {
+      canvas.discardActiveObject();
+      activeObjects.forEach(function(object) {
+        canvas.remove(object);
+      });
+    }
+  });
+}
+
 document.getElementById('clearCanvasBtn').addEventListener('click', () => {
   if(confirm("캔버스를 초기화하시겠습니까?")) {
     canvas.clear();
     canvas.setBackgroundColor('transparent', canvas.renderAll.bind(canvas));
+  }
+});
+
+// Keyboard delete
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Delete" || e.key === "Backspace") {
+    // prevent deleting if user is typing in a textarea or input
+    if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') return;
+    
+    const activeObj = canvas.getActiveObject();
+    if (activeObj) {
+      if (activeObj.isEditing) return; // Don't delete if typing text
+      
+      e.preventDefault();
+      const activeObjects = canvas.getActiveObjects();
+      canvas.discardActiveObject();
+      activeObjects.forEach(function(object) {
+        canvas.remove(object);
+      });
+    }
   }
 });
 
@@ -203,12 +236,23 @@ const logoFiles = [
 ];
 
 const logoSelect = document.getElementById("logoSelect");
+const logoPreview = document.getElementById("logoPreview");
+const logoPreviewPlaceholder = document.getElementById("logoPreviewPlaceholder");
+
 if (logoSelect) {
   logoFiles.forEach(file => {
     const opt = document.createElement("option");
     opt.value = "jpg/" + file;
     opt.textContent = file;
     logoSelect.appendChild(opt);
+  });
+
+  logoSelect.addEventListener("change", (e) => {
+    if (logoPreview && logoPreviewPlaceholder) {
+      logoPreview.src = e.target.value;
+      logoPreview.style.display = "block";
+      logoPreviewPlaceholder.style.display = "none";
+    }
   });
 }
 
