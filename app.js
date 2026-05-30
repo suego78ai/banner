@@ -189,3 +189,37 @@ const initText = new fabric.IText('여기에 디자인이 배치됩니다', {
   fill: 'rgba(255,255,255,0.3)'
 });
 canvas.add(initText);
+
+// ==========================================
+// Left Panel: Logo Upload
+// ==========================================
+document.getElementById("logoUpload").addEventListener("change", function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(f) {
+    const data = f.target.result;
+    fabric.Image.fromURL(data, function(img) {
+      // Scale down if logo is too large
+      const maxLogoSize = 250;
+      if (img.width > maxLogoSize || img.height > maxLogoSize) {
+        const scale = Math.min(maxLogoSize / img.width, maxLogoSize / img.height);
+        img.scale(scale);
+      }
+      
+      img.set({
+        left: 40,
+        top: 40,
+        originX: "left",
+        originY: "top"
+      });
+      
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      canvas.renderAll();
+    });
+  };
+  reader.readAsDataURL(file);
+});
+
