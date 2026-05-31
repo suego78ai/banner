@@ -47,26 +47,7 @@
       </div>
       
       <div class="input-group">
-        <input type="password" id="apiKeyInput" placeholder="Stability AI API Key (sk-...)" style="width: 100%; padding: 0.75rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--panel-border); border-radius: 8px; color: var(--text-primary); margin-bottom: 0.5rem;" />
-        
-        <label style="display: block; margin-bottom: 0.25rem; font-size: 0.85rem; color: var(--text-secondary);">참고 이미지 (DSI)</label>
-        <select id="dsiImageSelect" style="width: 100%; padding: 0.75rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--panel-border); border-radius: 8px; color: var(--text-primary); margin-bottom: 0.5rem; cursor: pointer;">
-          <option value="" disabled selected>참고할 이미지를 선택하세요...</option>
-          <option value="dsi/KakaoTalk_20260522_174249386.jpg">KakaoTalk_...174249386.jpg</option>
-          <option value="dsi/KakaoTalk_20260522_175107576.png">KakaoTalk_...175107576.png</option>
-          <option value="dsi/KakaoTalk_20260522_175124679.png">KakaoTalk_...175124679.png</option>
-          <option value="dsi/KakaoTalk_20260525_202044403.jpg">KakaoTalk_...202044403.jpg</option>
-          <option value="dsi/KakaoTalk_20260525_202044403_01.jpg">KakaoTalk_...202044403_01.jpg</option>
-        </select>
-        
-        <textarea id="promptInput" placeholder="예: 우주 배경의 몽환적인 파란색 테마, 빛나는 별..." style="margin-bottom: 0.5rem;"></textarea>
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
-          <label for="imageStrengthRange">참조 강도 (낮을수록 많이 변함)</label>
-          <span id="imageStrengthVal">0.35</span>
-        </div>
-        <input type="range" id="imageStrengthRange" min="0" max="1" step="0.05" value="0.35" style="width: 100%; margin-bottom: 0.75rem; cursor: pointer;" />
-
+        <textarea id="promptInput" placeholder="예: 우주 배경의 몽환적인 파란색 테마, 빛나는 별..."></textarea>
         <button id="generateBtn" class="primary-btn">디자인 생성하기</button>
       </div>
 
