@@ -42,6 +42,22 @@
       </div>
 
       <div class="panel-header" style="margin-top: 1.5rem;">
+        <h2>로고</h2>
+        <p>프로젝트 'jpg' 폴더 내의 로고를 추가합니다.</p>
+      </div>
+      
+      <div class="input-group">
+        <select id="logoSelect" style="padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); width: 100%; cursor: pointer; margin-bottom: 0.75rem;">
+          <option value="" disabled selected>로고 파일을 선택하세요...</option>
+        </select>
+        <div style="display: flex; justify-content: center; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 0.75rem; min-height: 50px; align-items: center;">
+          <img id="logoPreview" style="display: none; max-width: 100%; max-height: 100px; border-radius: 4px; padding: 0.5rem;" alt="Logo Preview" />
+          <span id="logoPreviewPlaceholder" style="color: var(--text-secondary); font-size: 0.8rem;">미리보기</span>
+        </div>
+        <button id="addLogoBtn" class="secondary-btn">캔버스에 로고 추가</button>
+      </div>
+
+      <div class="panel-header" style="margin-top: 1.5rem;">
         <h2>AI 디자인 생성</h2>
         <p>원하는 테마와 느낌을 입력하세요.</p>
       </div>
@@ -86,25 +102,9 @@
       </div>
     </main>
 
-    <!-- Right Panel: Logo, Event Info, Text -->
+    <!-- Right Panel: Event Info, Text -->
     <aside class="panel right-panel">
       <div class="panel-header">
-        <h2>저장소 로고 추가</h2>
-        <p>프로젝트 'jpg' 폴더 내의 로고를 추가합니다.</p>
-      </div>
-      
-      <div class="input-group" style="margin-bottom: 2rem;">
-        <select id="logoSelect" style="padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); width: 100%; cursor: pointer; margin-bottom: 0.75rem;">
-          <option value="" disabled selected>로고 파일을 선택하세요...</option>
-        </select>
-        <div style="display: flex; justify-content: center; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 0.75rem; min-height: 50px; align-items: center;">
-          <img id="logoPreview" style="display: none; max-width: 100%; max-height: 100px; border-radius: 4px; padding: 0.5rem;" alt="Logo Preview" />
-          <span id="logoPreviewPlaceholder" style="color: var(--text-secondary); font-size: 0.8rem;">미리보기</span>
-        </div>
-        <button id="addLogoBtn" class="secondary-btn">캔버스에 로고 추가</button>
-      </div>
-
-      <div class="panel-header" style="margin-top: 1.5rem;">
         <h2>행사 정보 추가</h2>
       </div>
 
