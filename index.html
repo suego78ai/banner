@@ -157,10 +157,14 @@
       </div>
       
       <div class="input-group">
-        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-primary);">1. 저장소 배경 선택 (bg 폴더)</label>
-        <select id="templateBgSelect" style="padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); width: 100%; cursor: pointer; margin-bottom: 0.75rem;">
-          <option value="" disabled selected>배경 이미지를 선택하세요...</option>
-        </select>
+        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-primary);">1. 현수막 배경 선택</label>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <select id="templateBgSelect" style="flex: 1; padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); cursor: pointer;">
+            <option value="" disabled selected>저장소(bg) 배경 선택...</option>
+          </select>
+          <input type="file" id="directBgUpload" accept="image/*" style="display: none;" />
+          <button id="directBgUploadBtn" class="secondary-btn" style="flex-shrink: 0; padding: 0.5rem 1rem; width: auto; font-size: 0.85rem; background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #34d399;">+ PC 업로드</button>
+        </div>
         <div id="templateBgPreviewContainer" style="display: none; margin-bottom: 1rem; text-align: center; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.5rem;">
           <img id="templateBgPreview" style="max-width: 100%; max-height: 100px; border-radius: 4px;" />
           <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">선택된 배경</p>

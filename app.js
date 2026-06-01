@@ -345,6 +345,8 @@ window.addEventListener("keydown", (e) => {
 // Right Panel: Auto Design Generation (Template Mode)
 // ==========================================
 const templateBgSelect = document.getElementById('templateBgSelect');
+const directBgUpload = document.getElementById('directBgUpload');
+const directBgUploadBtn = document.getElementById('directBgUploadBtn');
 const templateBgPreview = document.getElementById('templateBgPreview');
 const templateBgPreviewContainer = document.getElementById('templateBgPreviewContainer');
 const generateAutoDesignBtn = document.getElementById('generateAutoDesignBtn');
@@ -370,6 +372,32 @@ if (templateBgSelect) {
     selectedBgDataUrl = fileUrl;
     templateBgPreview.src = selectedBgDataUrl;
     templateBgPreviewContainer.style.display = 'block';
+  });
+}
+
+if (directBgUploadBtn && directBgUpload) {
+  directBgUploadBtn.addEventListener('click', () => {
+    directBgUpload.click();
+  });
+
+  directBgUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (f) => {
+      const fileUrl = f.target.result;
+      
+      const option = document.createElement('option');
+      option.value = fileUrl;
+      option.textContent = `[내 PC] ${file.name}`;
+      templateBgSelect.appendChild(option);
+      
+      templateBgSelect.value = fileUrl;
+      templateBgSelect.dispatchEvent(new Event('change'));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   });
 }
 
