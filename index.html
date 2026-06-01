@@ -142,9 +142,10 @@
       </div>
       
       <div class="input-group">
-        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-primary);">1. 참고할 현수막 배경 업로드</label>
-        <input type="file" id="templateBgUpload" accept="image/*" style="display: none;" />
-        <button id="selectTemplateBgBtn" class="secondary-btn" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--panel-border); margin-bottom: 1rem;">PC에서 배경 파일 선택</button>
+        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-primary);">1. 저장소 배경 선택 (bg 폴더)</label>
+        <select id="templateBgSelect" style="padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); width: 100%; cursor: pointer; margin-bottom: 0.75rem;">
+          <option value="" disabled selected>배경 이미지를 선택하세요...</option>
+        </select>
         <div id="templateBgPreviewContainer" style="display: none; margin-bottom: 1rem; text-align: center; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.5rem;">
           <img id="templateBgPreview" style="max-width: 100%; max-height: 100px; border-radius: 4px;" />
           <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">선택된 배경</p>

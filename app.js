@@ -308,38 +308,39 @@ window.addEventListener("keydown", (e) => {
 // ==========================================
 // Right Panel: Auto Design Generation (Template Mode)
 // ==========================================
-const selectTemplateBgBtn = document.getElementById('selectTemplateBgBtn');
-const templateBgUpload = document.getElementById('templateBgUpload');
+const templateBgSelect = document.getElementById('templateBgSelect');
 const templateBgPreview = document.getElementById('templateBgPreview');
 const templateBgPreviewContainer = document.getElementById('templateBgPreviewContainer');
 const generateAutoDesignBtn = document.getElementById('generateAutoDesignBtn');
 
 let selectedBgDataUrl = null;
 
-if (selectTemplateBgBtn && templateBgUpload) {
-  selectTemplateBgBtn.addEventListener('click', () => {
-    templateBgUpload.click();
+const bgFiles = [
+  "sample_bg.jpg"
+];
+
+if (templateBgSelect) {
+  bgFiles.forEach(file => {
+    const option = document.createElement('option');
+    option.value = `bg/${file}`;
+    option.textContent = file;
+    templateBgSelect.appendChild(option);
   });
 
-  templateBgUpload.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  templateBgSelect.addEventListener('change', (e) => {
+    const fileUrl = e.target.value;
+    if (!fileUrl) return;
 
-    const reader = new FileReader();
-    reader.onload = (f) => {
-      selectedBgDataUrl = f.target.result;
-      templateBgPreview.src = selectedBgDataUrl;
-      templateBgPreviewContainer.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+    selectedBgDataUrl = fileUrl;
+    templateBgPreview.src = selectedBgDataUrl;
+    templateBgPreviewContainer.style.display = 'block';
   });
 }
 
 if (generateAutoDesignBtn) {
   generateAutoDesignBtn.addEventListener('click', () => {
     if (!selectedBgDataUrl) {
-      alert("먼저 'PC에서 배경 파일 선택' 버튼을 눌러 현수막 배경을 업로드해주세요!");
+      alert("먼저 '저장소 배경 선택 (bg 폴더)'에서 현수막 배경을 골라주세요!");
       return;
     }
     
