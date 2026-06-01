@@ -100,7 +100,29 @@ if (presetSizeSelect) {
       canvas.logicalWidth = parseInt(w, 10);
       canvas.logicalHeight = parseInt(h, 10);
       resizeCanvasVisual();
+
+      const baseDimension = Math.min(canvas.logicalWidth, canvas.logicalHeight);
+      
+      canvas.getObjects().forEach(obj => {
+        if (obj.customType === 'eventTitle') {
+          obj.set({
+            left: canvas.logicalWidth / 2,
+            top: canvas.logicalHeight * 0.35,
+            fontSize: Math.min(160, Math.round(baseDimension * 0.15))
+          });
+          obj.setCoords();
+        } else if (obj.customType === 'eventDate') {
+          obj.set({
+            left: canvas.logicalWidth / 2,
+            top: canvas.logicalHeight * 0.6,
+            fontSize: Math.min(90, Math.round(baseDimension * 0.08))
+          });
+          obj.setCoords();
+        }
+      });
+      
       canvas.renderAll();
+      if (typeof updateTextControls === 'function') updateTextControls();
     }
   });
 }
