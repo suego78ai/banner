@@ -107,16 +107,17 @@
         <button id="addDateBtn" class="secondary-btn">일자 캔버스에 추가</button>
       </div>
 
-      <div class="export-section">
-        <button id="exportBtn" class="primary-btn export-btn">
-          <span>고해상도 다운로드</span>
-          <span class="export-icon">↓</span>
-        </button>
-      </div>
+
     </aside>
 
     <!-- Center Panel: Canvas Area -->
     <main class="panel center-panel">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+        <button id="exportBtn" class="primary-btn export-btn" style="padding: 0.75rem 1.5rem; width: auto; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+          <span>고해상도 다운로드</span>
+          <span class="export-icon">↓</span>
+        </button>
+      </div>
       <div class="canvas-wrapper">
         <canvas id="mainCanvas"></canvas>
       </div>
