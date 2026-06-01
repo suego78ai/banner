@@ -551,13 +551,13 @@ if (excelUploadBtn && excelUpload && excelDataSelect) {
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
+      const workbook = XLSX.read(data, { type: 'array', cellDates: true });
       
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       
-      // Use raw: false so that date/time columns are parsed exactly as formatted strings in Excel
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: false });
+      // Use raw: true (default) since cellDates is true, dates will be parsed as JS Date objects
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
       
       if (jsonData.length > 0) {
         parsedExcelData = jsonData;
@@ -589,6 +589,33 @@ if (excelUploadBtn && excelUpload && excelDataSelect) {
     
     const rowData = parsedExcelData[selectedIndex];
     
+    function formatKoreanDate(val) {
+      if (!val) return '';
+      let d = val;
+      if (typeof val === 'string' && !isNaN(Date.parse(val))) {
+        // If it looks like a valid date string (e.g. "2026-05-30T14:00")
+        d = new Date(val);
+      }
+      
+      if (d instanceof Date && !isNaN(d)) {
+        const year = d.getFullYear();
+        const month = d.getMonth() + 1;
+        const day = d.getDate();
+        let hours = d.getHours();
+        const minutes = d.getMinutes();
+        
+        // If hours and minutes are both 0, it might be a date-only field, but the user requested AM/PM format explicitly.
+        // Assuming user always wants AM/PM format if it's a valid date.
+        const ampm = hours >= 12 ? '오후' : '오전';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // convert 0 to 12
+        const minStr = minutes < 10 ? '0' + minutes : minutes;
+        
+        return `${year}년 ${month}월 ${day}일 ${ampm} ${hours}:${minStr}`;
+      }
+      return val;
+    }
+    
     // 1. Update Title Input
     const titleInput = document.getElementById('eventTitleInput');
     const titleVal = rowData['프로그램명'] || rowData['프로그램'] || '';
@@ -598,7 +625,8 @@ if (excelUploadBtn && excelUpload && excelDataSelect) {
 
     // 2. Update Date Input (combining Date and Location)
     const dateInput = document.getElementById('eventDateInput');
-    const schedule = rowData['일정'] || rowData['날짜'] || '';
+    const rawSchedule = rowData['일정'] || rowData['날짜'] || '';
+    const schedule = formatKoreanDate(rawSchedule);
     const location = rowData['교육장소'] || rowData['장소'] || '';
     
     let combinedDateText = schedule;
