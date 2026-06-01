@@ -306,75 +306,85 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ==========================================
-// Left Panel: AI Generation (Gemini Redirect) & Local Upload
+// Right Panel: Auto Design Generation (Template Mode)
 // ==========================================
-const promptInput = document.getElementById('promptInput');
-const generateBtn = document.getElementById('generateBtn');
+const selectTemplateBgBtn = document.getElementById('selectTemplateBgBtn');
+const templateBgUpload = document.getElementById('templateBgUpload');
+const templateBgPreview = document.getElementById('templateBgPreview');
+const templateBgPreviewContainer = document.getElementById('templateBgPreviewContainer');
+const generateAutoDesignBtn = document.getElementById('generateAutoDesignBtn');
 
-generateBtn.addEventListener('click', () => {
-  const prompt = promptInput.value.trim();
-  if (!prompt) {
-    alert("원하는 느낌이나 테마를 텍스트창에 먼저 입력해주세요!");
-    return;
-  }
+let selectedBgDataUrl = null;
 
-  const fullPrompt = `다음 설명에 맞는 현수막 배경 이미지를 생성해줘: ${prompt}`;
-
-  // Copy to clipboard and open Gemini
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(fullPrompt).then(() => {
-      alert("입력하신 내용이 복사되었습니다!\n\n새 창으로 열리는 구글 제미나이(Gemini) 검색창에 '붙여넣기(Ctrl+V)' 하시고 이미지를 생성해 보세요.");
-      window.open("https://gemini.google.com/u/1/app?pli=1", "_blank");
-    }).catch(err => {
-      window.open("https://gemini.google.com/u/1/app?pli=1", "_blank");
-    });
-  } else {
-    // Fallback if clipboard API not available
-    alert("새 창으로 열리는 구글 제미나이(Gemini)에서 이미지를 직접 생성해 보세요.");
-    window.open("https://gemini.google.com/u/1/app?pli=1", "_blank");
-  }
-});
-
-const uploadBgBtn = document.getElementById('uploadBgBtn');
-const localBgUpload = document.getElementById('localBgUpload');
-
-if (uploadBgBtn && localBgUpload) {
-  uploadBgBtn.addEventListener('click', () => {
-    localBgUpload.click();
+if (selectTemplateBgBtn && templateBgUpload) {
+  selectTemplateBgBtn.addEventListener('click', () => {
+    templateBgUpload.click();
   });
 
-  localBgUpload.addEventListener('change', (e) => {
+  templateBgUpload.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (f) => {
-      const data = f.target.result;
-      fabric.Image.fromURL(data, (fabricImg) => {
-        const logicalWidth = canvas.logicalWidth || 1920;
-        const logicalHeight = canvas.logicalHeight || 1080;
-        
-        // Calculate scale to exactly COVER the logical canvas dimensions
-        const scaleX = logicalWidth / fabricImg.width;
-        const scaleY = logicalHeight / fabricImg.height;
-        const scale = Math.max(scaleX, scaleY);
-        
-        fabricImg.set({
-          originX: 'center',
-          originY: 'center',
-          left: logicalWidth / 2,
-          top: logicalHeight / 2,
-          scaleX: scale,
-          scaleY: scale
-        });
-        
-        canvas.setBackgroundImage(fabricImg, canvas.renderAll.bind(canvas));
-      });
+      selectedBgDataUrl = f.target.result;
+      templateBgPreview.src = selectedBgDataUrl;
+      templateBgPreviewContainer.style.display = 'block';
     };
     reader.readAsDataURL(file);
-    
-    // Reset input so the same file can be selected again
     e.target.value = '';
+  });
+}
+
+if (generateAutoDesignBtn) {
+  generateAutoDesignBtn.addEventListener('click', () => {
+    if (!selectedBgDataUrl) {
+      alert("먼저 'PC에서 배경 파일 선택' 버튼을 눌러 현수막 배경을 업로드해주세요!");
+      return;
+    }
+    
+    // 1. Set Background to fit logical size
+    fabric.Image.fromURL(selectedBgDataUrl, (fabricImg) => {
+      const logicalWidth = canvas.logicalWidth || 1920;
+      const logicalHeight = canvas.logicalHeight || 1080;
+      
+      const scaleX = logicalWidth / fabricImg.width;
+      const scaleY = logicalHeight / fabricImg.height;
+      const scale = Math.max(scaleX, scaleY);
+      
+      fabricImg.set({
+        originX: 'center',
+        originY: 'center',
+        left: logicalWidth / 2,
+        top: logicalHeight / 2,
+        scaleX: scale,
+        scaleY: scale
+      });
+      
+      canvas.setBackgroundImage(fabricImg, () => {
+        canvas.renderAll();
+        
+        // 2. Clear existing items (optional, but good for "Auto Generation" feel to start fresh)
+        // Except we might want to keep the logo. For now, let's just add text on top.
+        
+        // 3. Trigger Add Title
+        const addTitleBtn = document.getElementById('addTitleBtn');
+        const eventTitleInput = document.getElementById('eventTitleInput');
+        if (addTitleBtn && eventTitleInput && eventTitleInput.value.trim() !== '') {
+          addTitleBtn.click();
+        }
+
+        // 4. Trigger Add Date
+        const addDateBtn = document.getElementById('addDateBtn');
+        const eventDateInput = document.getElementById('eventDateInput');
+        if (addDateBtn && eventDateInput && eventDateInput.value.trim() !== '') {
+          // Add a small delay so they don't exactly completely overlap perfectly and block rendering
+          setTimeout(() => {
+            addDateBtn.click();
+          }, 100);
+        }
+      });
+    });
   });
 }
 

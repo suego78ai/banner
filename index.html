@@ -136,22 +136,24 @@
     <!-- Right Panel: Event Info, Text -->
     <aside class="panel right-panel">
       <div class="panel-header">
-        <h2>AI 디자인 생성</h2>
-        <p>원하는 테마와 느낌을 입력하세요.</p>
+        <h2>자동 디자인 생성 (템플릿 모드)</h2>
+        <p>배경 이미지를 선택하면 행사 정보와 함께 자동으로 캔버스에 배치됩니다.</p>
       </div>
       
       <div class="input-group">
-        <textarea id="promptInput" placeholder="예: 우주 배경의 몽환적인 파란색 테마, 가로형 현수막 배경으로 사용할 거니까 글씨 없이 공간을 비워줘..." style="margin-bottom: 0.5rem;"></textarea>
-        <button id="generateBtn" class="primary-btn">디자인 생성하기 (Gemini 열기)</button>
-      </div>
+        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-primary);">1. 참고할 현수막 배경 업로드</label>
+        <input type="file" id="templateBgUpload" accept="image/*" style="display: none;" />
+        <button id="selectTemplateBgBtn" class="secondary-btn" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--panel-border); margin-bottom: 1rem;">PC에서 배경 파일 선택</button>
+        <div id="templateBgPreviewContainer" style="display: none; margin-bottom: 1rem; text-align: center; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.5rem;">
+          <img id="templateBgPreview" style="max-width: 100%; max-height: 100px; border-radius: 4px;" />
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">선택된 배경</p>
+        </div>
 
-      <div class="gallery-container">
-        <h3>제미나이에서 생성한 이미지 불러오기</h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; line-height: 1.4;">
-          '디자인 생성하기'를 누르면 입력하신 내용이 자동으로 복사되며 제미나이가 열립니다. 제미나이에서 이미지를 다운받은 뒤 아래 버튼을 눌러 배경으로 지정하세요.
+        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-primary);">2. 캔버스 자동 완성</label>
+        <button id="generateAutoDesignBtn" class="primary-btn">디자인 자동 생성하기</button>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.4;">
+          * 왼쪽 프레임에 입력된 '행사 제목'과 '일자/장소' 텍스트를 가져와서 캔버스 사이즈에 맞게 자동으로 디자인을 구성합니다.
         </p>
-        <input type="file" id="localBgUpload" accept="image/*" style="display: none;" />
-        <button id="uploadBgBtn" class="secondary-btn" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--panel-border);">PC에서 다운로드한 이미지 선택</button>
       </div>
 
       <div class="panel-header" style="margin-top: 1.5rem;">
