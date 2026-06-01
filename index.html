@@ -13,6 +13,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
   <!-- SheetJS via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- JSZip via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- FileSaver.js via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
   <div class="app-container">
@@ -31,9 +35,11 @@
         <input type="file" id="excelUpload" accept=".xlsx, .xls, .csv" style="display: none;" />
         <button id="excelUploadBtn" class="secondary-btn" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); color: #34d399; margin-bottom: 0.75rem;">엑셀 파일 가져오기</button>
         
-        <select id="excelDataSelect" style="display: none; padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); width: 100%; cursor: pointer;">
+        <select id="excelDataSelect" style="display: none; padding: 0.5rem; background: rgba(15, 23, 42, 0.6); border-radius: 8px; border: 1px solid var(--panel-border); color: var(--text-primary); width: 100%; cursor: pointer; margin-bottom: 0.75rem;">
           <option value="" disabled selected>행사를 선택하세요...</option>
         </select>
+        
+        <button id="bulkGenerateBtn" class="primary-btn" style="display: none; width: 100%; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">엑셀 데이터 모두 자동 생성</button>
       </div>
 
       <div class="setting-group" style="margin-bottom: 1.5rem;">
@@ -124,6 +130,17 @@
         <div class="action-buttons">
             <button id="deleteObjBtn" class="danger-btn">선택 삭제</button>
             <button id="clearCanvasBtn" class="danger-btn">전체 초기화</button>
+        </div>
+      </div>
+      
+      <!-- Generated Gallery Area -->
+      <div id="galleryContainer" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h3 style="margin: 0; font-size: 1rem; color: var(--text-primary);">생성된 현수막 갤러리</h3>
+          <button id="downloadZipBtn" class="primary-btn" style="padding: 0.5rem 1rem; width: auto; font-size: 0.85rem; background: #10b981;">전체 ZIP 다운로드</button>
+        </div>
+        <div id="galleryList" style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem;">
+          <!-- Thumbnails will be injected here -->
         </div>
       </div>
     </main>

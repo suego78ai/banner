@@ -602,6 +602,8 @@ if (excelUploadBtn && excelUpload && excelDataSelect) {
         });
         
         excelDataSelect.style.display = 'block';
+        const bulkBtn = document.getElementById('bulkGenerateBtn');
+        if (bulkBtn) bulkBtn.style.display = 'block';
         alert(`총 ${jsonData.length}개의 행사 데이터를 성공적으로 불러왔습니다! 드롭다운에서 행사를 선택해보세요.`);
       } else {
         alert("업로드한 엑셀 파일에 데이터가 없거나 형식이 맞지 않습니다.");
@@ -672,5 +674,113 @@ if (excelUploadBtn && excelUpload && excelDataSelect) {
     
     if (addTitleBtn && titleVal) addTitleBtn.click();
     if (addDateBtn && combinedDateText) addDateBtn.click();
+  });
+}
+
+// ==========================================
+// Bulk Generation & ZIP Download
+// ==========================================
+const bulkGenerateBtn = document.getElementById('bulkGenerateBtn');
+const galleryContainer = document.getElementById('galleryContainer');
+const galleryList = document.getElementById('galleryList');
+const downloadZipBtn = document.getElementById('downloadZipBtn');
+let generatedBanners = [];
+
+if (bulkGenerateBtn) {
+  bulkGenerateBtn.addEventListener('click', async () => {
+    if (parsedExcelData.length === 0) return;
+    
+    // Disable UI during generation
+    bulkGenerateBtn.disabled = true;
+    bulkGenerateBtn.textContent = '생성 중...';
+    galleryContainer.style.display = 'block';
+    galleryList.innerHTML = '<p style="color: var(--text-secondary);">현수막을 생성하고 있습니다. 잠시만 기다려주세요...</p>';
+    generatedBanners = [];
+
+    // Helper to delay for rendering
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    for (let i = 0; i < parsedExcelData.length; i++) {
+      // Temporarily select the item to trigger the change event
+      excelDataSelect.value = i;
+      excelDataSelect.dispatchEvent(new Event('change'));
+      
+      // Wait a moment for fabric.js to render
+      await delay(150); 
+      
+      // Export to data URL
+      const dataUrl = canvas.toDataURL({ format: 'jpeg', quality: 0.9 });
+      
+      // Create a filename based on the title or index
+      const rowData = parsedExcelData[i];
+      const title = rowData['프로그램명'] || rowData['프로그램'] || `행사_${i+1}`;
+      const safeTitle = title.replace(/[^a-zA-Z0-9가-힣]/g, '_').substring(0, 30);
+      const filename = `${safeTitle}_현수막.jpg`;
+      
+      generatedBanners.push({ filename, dataUrl, index: i });
+    }
+
+    // Render Gallery
+    galleryList.innerHTML = '';
+    generatedBanners.forEach((banner) => {
+      const item = document.createElement('div');
+      item.className = 'gallery-item';
+      
+      const img = document.createElement('img');
+      img.src = banner.dataUrl;
+      
+      const label = document.createElement('div');
+      label.className = 'gallery-label';
+      label.textContent = banner.filename;
+      
+      item.appendChild(img);
+      item.appendChild(label);
+      
+      // When clicked, show it on canvas by selecting from dropdown again
+      item.addEventListener('click', () => {
+        excelDataSelect.value = banner.index;
+        excelDataSelect.dispatchEvent(new Event('change'));
+      });
+      
+      galleryList.appendChild(item);
+    });
+
+    bulkGenerateBtn.textContent = '엑셀 데이터 모두 자동 생성';
+    bulkGenerateBtn.disabled = false;
+    alert(`총 ${generatedBanners.length}개의 현수막 생성이 완료되었습니다. 갤러리에서 확인하세요.`);
+  });
+}
+
+if (downloadZipBtn) {
+  downloadZipBtn.addEventListener('click', () => {
+    if (generatedBanners.length === 0) {
+      alert("먼저 현수막을 생성해주세요.");
+      return;
+    }
+    
+    downloadZipBtn.disabled = true;
+    downloadZipBtn.textContent = '압축 중...';
+    
+    const zip = new JSZip();
+    const folder = zip.folder("현수막_자동생성");
+    
+    generatedBanners.forEach((banner, idx) => {
+      // Remove data:image/jpeg;base64, from string
+      const base64Data = banner.dataUrl.split(',')[1];
+      // Ensure unique filename if duplicates exist
+      const name = `${String(idx + 1).padStart(2, '0')}_${banner.filename}`;
+      folder.file(name, base64Data, { base64: true });
+    });
+    
+    zip.generateAsync({ type: "blob" }).then(function(content) {
+      saveAs(content, "현수막_모음.zip");
+      downloadZipBtn.disabled = false;
+      downloadZipBtn.textContent = '전체 ZIP 다운로드';
+    }).catch(err => {
+      console.error(err);
+      alert("ZIP 생성 중 오류가 발생했습니다.");
+      downloadZipBtn.disabled = false;
+      downloadZipBtn.textContent = '전체 ZIP 다운로드';
+    });
   });
 }
