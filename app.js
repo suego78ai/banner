@@ -556,7 +556,8 @@ if (excelUploadBtn && excelUpload && excelDataSelect) {
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      // Use raw: false so that date/time columns are parsed exactly as formatted strings in Excel
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: false });
       
       if (jsonData.length > 0) {
         parsedExcelData = jsonData;
