@@ -171,13 +171,17 @@ document.getElementById('addTitleBtn').addEventListener('click', () => {
     canvas.renderAll();
     canvas.setActiveObject(existingText);
   } else {
+    // Dynamically calculate font size based on canvas dimensions (approx 15% of the smaller dimension, max 160)
+    const baseDimension = Math.min(logicalWidth, logicalHeight);
+    const dynamicFontSize = Math.min(160, Math.round(baseDimension * 0.15));
+
     const text = new fabric.IText(textValue, {
       left: logicalWidth / 2,
       top: logicalHeight * 0.35,
       originX: 'center',
       originY: 'center',
       fontFamily: font,
-      fontSize: 160,
+      fontSize: dynamicFontSize,
       fontWeight: 'bold',
       fill: color,
       customType: 'eventTitle',
@@ -224,13 +228,17 @@ document.getElementById('addDateBtn').addEventListener('click', () => {
     canvas.renderAll();
     canvas.setActiveObject(existingText);
   } else {
+    // Dynamically calculate font size (approx 8% of the smaller dimension, max 90)
+    const baseDimension = Math.min(logicalWidth, logicalHeight);
+    const dynamicFontSize = Math.min(90, Math.round(baseDimension * 0.08));
+
     const text = new fabric.IText(textValue, {
       left: logicalWidth / 2,
       top: logicalHeight * 0.6,
       originX: 'center',
       originY: 'center',
       fontFamily: font,
-      fontSize: 90,
+      fontSize: dynamicFontSize,
       fill: color,
       customType: 'eventDate',
       shadow: new fabric.Shadow({
@@ -281,6 +289,20 @@ colorPickers.forEach(picker => {
   }
 });
 
+const fontSizeInput = document.getElementById('fontSizeInput');
+if (fontSizeInput) {
+  fontSizeInput.addEventListener('input', (e) => {
+    const activeObj = canvas.getActiveObject();
+    if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
+      const val = parseInt(e.target.value, 10);
+      if (val > 0) {
+        activeObj.set('fontSize', val);
+        canvas.renderAll();
+      }
+    }
+  });
+}
+
 canvas.on('selection:created', updateTextControls);
 canvas.on('selection:updated', updateTextControls);
 
@@ -297,6 +319,9 @@ function updateTextControls() {
       colorPickers.forEach(picker => {
         if (picker) picker.value = hex;
       });
+    }
+    if (activeObj.fontSize && fontSizeInput) {
+      fontSizeInput.value = Math.round(activeObj.fontSize);
     }
   }
 }
