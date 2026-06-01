@@ -155,24 +155,42 @@ document.getElementById('addTitleBtn').addEventListener('click', () => {
     textValue = textValue.replace(/\n/g, ' ').split('').join('\n');
   }
 
-  const text = new fabric.IText(textValue, {
-    left: logicalWidth / 2,
-    top: logicalHeight * 0.35,
-    originX: 'center',
-    originY: 'center',
-    fontFamily: font,
-    fontSize: 160,
-    fontWeight: 'bold',
-    fill: color,
-    shadow: new fabric.Shadow({
-      color: 'rgba(0,0,0,0.6)',
-      blur: 15,
-      offsetX: 4,
-      offsetY: 4
-    })
+  let existingText = null;
+  canvas.getObjects().forEach(obj => {
+    if (obj.customType === 'eventTitle') {
+      existingText = obj;
+    }
   });
-  canvas.add(text);
-  canvas.setActiveObject(text);
+
+  if (existingText) {
+    existingText.set({
+      text: textValue,
+      fontFamily: font,
+      fill: color
+    });
+    canvas.renderAll();
+    canvas.setActiveObject(existingText);
+  } else {
+    const text = new fabric.IText(textValue, {
+      left: logicalWidth / 2,
+      top: logicalHeight * 0.35,
+      originX: 'center',
+      originY: 'center',
+      fontFamily: font,
+      fontSize: 160,
+      fontWeight: 'bold',
+      fill: color,
+      customType: 'eventTitle',
+      shadow: new fabric.Shadow({
+        color: 'rgba(0,0,0,0.6)',
+        blur: 15,
+        offsetX: 4,
+        offsetY: 4
+      })
+    });
+    canvas.add(text);
+    canvas.setActiveObject(text);
+  }
 });
 
 document.getElementById('addDateBtn').addEventListener('click', () => {
@@ -190,23 +208,41 @@ document.getElementById('addDateBtn').addEventListener('click', () => {
     textValue = textValue.replace(/\n/g, ' ').split('').join('\n');
   }
 
-  const text = new fabric.IText(textValue, {
-    left: logicalWidth / 2,
-    top: logicalHeight * 0.6,
-    originX: 'center',
-    originY: 'center',
-    fontFamily: font,
-    fontSize: 90,
-    fill: color,
-    shadow: new fabric.Shadow({
-      color: 'rgba(0,0,0,0.6)',
-      blur: 10,
-      offsetX: 2,
-      offsetY: 2
-    })
+  let existingText = null;
+  canvas.getObjects().forEach(obj => {
+    if (obj.customType === 'eventDate') {
+      existingText = obj;
+    }
   });
-  canvas.add(text);
-  canvas.setActiveObject(text);
+
+  if (existingText) {
+    existingText.set({
+      text: textValue,
+      fontFamily: font,
+      fill: color
+    });
+    canvas.renderAll();
+    canvas.setActiveObject(existingText);
+  } else {
+    const text = new fabric.IText(textValue, {
+      left: logicalWidth / 2,
+      top: logicalHeight * 0.6,
+      originX: 'center',
+      originY: 'center',
+      fontFamily: font,
+      fontSize: 90,
+      fill: color,
+      customType: 'eventDate',
+      shadow: new fabric.Shadow({
+        color: 'rgba(0,0,0,0.6)',
+        blur: 10,
+        offsetX: 2,
+        offsetY: 2
+      })
+    });
+    canvas.add(text);
+    canvas.setActiveObject(text);
+  }
 });
 
 const fontSelects = [
@@ -494,3 +530,90 @@ if (addLogoBtn) {
   });
 }
 
+// ==========================================
+// Excel Data Integration
+// ==========================================
+const excelUploadBtn = document.getElementById('excelUploadBtn');
+const excelUpload = document.getElementById('excelUpload');
+const excelDataSelect = document.getElementById('excelDataSelect');
+
+let parsedExcelData = [];
+
+if (excelUploadBtn && excelUpload && excelDataSelect) {
+  excelUploadBtn.addEventListener('click', () => {
+    excelUpload.click();
+  });
+
+  excelUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      
+      if (jsonData.length > 0) {
+        parsedExcelData = jsonData;
+        
+        excelDataSelect.innerHTML = '<option value="" disabled selected>원하는 행사를 선택하세요...</option>';
+        
+        jsonData.forEach((row, index) => {
+          const programName = row['프로그램명'] || row['프로그램'] || `행사 ${index + 1}`;
+          
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = programName;
+          excelDataSelect.appendChild(option);
+        });
+        
+        excelDataSelect.style.display = 'block';
+        alert(`총 ${jsonData.length}개의 행사 데이터를 성공적으로 불러왔습니다! 드롭다운에서 행사를 선택해보세요.`);
+      } else {
+        alert("업로드한 엑셀 파일에 데이터가 없거나 형식이 맞지 않습니다.");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = ''; // Reset input
+  });
+
+  excelDataSelect.addEventListener('change', (e) => {
+    const selectedIndex = e.target.value;
+    if (selectedIndex === "") return;
+    
+    const rowData = parsedExcelData[selectedIndex];
+    
+    // 1. Update Title Input
+    const titleInput = document.getElementById('eventTitleInput');
+    const titleVal = rowData['프로그램명'] || rowData['프로그램'] || '';
+    if (titleInput && titleVal) {
+      titleInput.value = titleVal;
+    }
+
+    // 2. Update Date Input (combining Date and Location)
+    const dateInput = document.getElementById('eventDateInput');
+    const schedule = rowData['일정'] || rowData['날짜'] || '';
+    const location = rowData['교육장소'] || rowData['장소'] || '';
+    
+    let combinedDateText = schedule;
+    if (location) {
+      combinedDateText += (combinedDateText ? '\n' : '') + location;
+    }
+    
+    if (dateInput && combinedDateText) {
+      dateInput.value = combinedDateText;
+    }
+
+    // 3. Automatically trigger button clicks to update canvas
+    const addTitleBtn = document.getElementById('addTitleBtn');
+    const addDateBtn = document.getElementById('addDateBtn');
+    
+    if (addTitleBtn && titleVal) addTitleBtn.click();
+    if (addDateBtn && combinedDateText) addDateBtn.click();
+  });
+}
