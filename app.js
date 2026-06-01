@@ -306,84 +306,51 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ==========================================
-// Left Panel: Mock AI Generation
+// Left Panel: AI Generation (Gemini Redirect) & Local Upload
 // ==========================================
 const promptInput = document.getElementById('promptInput');
 const generateBtn = document.getElementById('generateBtn');
-const loadingIndicator = document.getElementById('loadingIndicator');
-const designGallery = document.getElementById('designGallery');
 
 generateBtn.addEventListener('click', () => {
   const prompt = promptInput.value.trim();
   if (!prompt) {
-    alert("원하는 느낌이나 테마를 입력해주세요!");
+    alert("원하는 느낌이나 테마를 텍스트창에 먼저 입력해주세요!");
     return;
   }
 
-  // Show loading
-  designGallery.innerHTML = '';
-  loadingIndicator.classList.remove('hidden');
-  generateBtn.disabled = true;
+  const fullPrompt = `다음 설명에 맞는 현수막 배경 이미지를 생성해줘: ${prompt}`;
 
-  // Using Pollinations AI for actual image generation based on user prompt
-  const logicalWidth = canvas.logicalWidth || 1920;
-  const logicalHeight = canvas.logicalHeight || 1080;
-  
-  // Calculate AI dimensions keeping the exact same aspect ratio as the canvas, 
-  // but capping the maximum dimension around 1200px to ensure the API doesn't fail or timeout.
-  const MAX_AI_DIMENSION = 1200;
-  let aiWidth = logicalWidth;
-  let aiHeight = logicalHeight;
-  
-  if (aiWidth > MAX_AI_DIMENSION || aiHeight > MAX_AI_DIMENSION) {
-    const scale = Math.min(MAX_AI_DIMENSION / aiWidth, MAX_AI_DIMENSION / aiHeight);
-    aiWidth = Math.round(aiWidth * scale);
-    aiHeight = Math.round(aiHeight * scale);
+  // Copy to clipboard and open Gemini
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(fullPrompt).then(() => {
+      alert("입력하신 내용이 복사되었습니다!\n\n새 창으로 열리는 구글 제미나이(Gemini) 검색창에 '붙여넣기(Ctrl+V)' 하시고 이미지를 생성해 보세요.");
+      window.open("https://gemini.google.com/u/1/app?pli=1", "_blank");
+    }).catch(err => {
+      window.open("https://gemini.google.com/u/1/app?pli=1", "_blank");
+    });
+  } else {
+    // Fallback if clipboard API not available
+    alert("새 창으로 열리는 구글 제미나이(Gemini)에서 이미지를 직접 생성해 보세요.");
+    window.open("https://gemini.google.com/u/1/app?pli=1", "_blank");
   }
+});
 
-  const imageUrls = [];
-  for (let i = 0; i < 3; i++) {
-    const seed = Math.floor(Math.random() * 100000);
-    // Add "banner background high quality" to guide the AI for better background results
-    const enhancedPrompt = prompt + " banner background high quality empty space";
-    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=${aiWidth}&height=${aiHeight}&nologo=true&seed=${seed}`;
-    imageUrls.push(url);
-  }
+const uploadBgBtn = document.getElementById('uploadBgBtn');
+const localBgUpload = document.getElementById('localBgUpload');
 
-  let loadedCount = 0;
-  
-  imageUrls.forEach((url, i) => {
-    const item = document.createElement('div');
-    item.className = 'design-item';
-    
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.alt = `AI Design ${i+1}`;
-    
-    img.onload = () => {
-      loadedCount++;
-      if (loadedCount === 1) {
-        // Hide loading as soon as first image is ready
-        loadingIndicator.classList.add('hidden');
-        generateBtn.disabled = false;
-      }
-      item.appendChild(img);
-      designGallery.appendChild(item);
-    };
-    
-    img.onerror = () => {
-      loadedCount++;
-      if (loadedCount === 1) {
-        loadingIndicator.classList.add('hidden');
-        generateBtn.disabled = false;
-      }
-    };
-    
-    img.src = url;
+if (uploadBgBtn && localBgUpload) {
+  uploadBgBtn.addEventListener('click', () => {
+    localBgUpload.click();
+  });
 
-    // Click event to set as CANVAS BACKGROUND
-    item.addEventListener('click', () => {
-      fabric.Image.fromURL(url, (fabricImg) => {
+  localBgUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (f) => {
+      const data = f.target.result;
+      fabric.Image.fromURL(data, (fabricImg) => {
         const logicalWidth = canvas.logicalWidth || 1920;
         const logicalHeight = canvas.logicalHeight || 1080;
         
@@ -402,10 +369,14 @@ generateBtn.addEventListener('click', () => {
         });
         
         canvas.setBackgroundImage(fabricImg, canvas.renderAll.bind(canvas));
-      }, { crossOrigin: 'anonymous' });
-    });
+      });
+    };
+    reader.readAsDataURL(file);
+    
+    // Reset input so the same file can be selected again
+    e.target.value = '';
   });
-});
+}
 
 // ==========================================
 // Export

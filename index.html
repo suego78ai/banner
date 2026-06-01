@@ -47,19 +47,17 @@
       </div>
       
       <div class="input-group">
-        <textarea id="promptInput" placeholder="예: 우주 배경의 몽환적인 파란색 테마, 빛나는 별..."></textarea>
-        <button id="generateBtn" class="primary-btn">디자인 생성하기</button>
+        <textarea id="promptInput" placeholder="예: 우주 배경의 몽환적인 파란색 테마, 가로형 현수막 배경으로 사용할 거니까 글씨 없이 공간을 비워줘..." style="margin-bottom: 0.5rem;"></textarea>
+        <button id="generateBtn" class="primary-btn">디자인 생성하기 (Gemini 열기)</button>
       </div>
 
       <div class="gallery-container">
-        <h3>생성된 시안 (클릭하여 편집)</h3>
-        <div id="loadingIndicator" class="hidden">
-          <div class="spinner"></div>
-          <p>AI가 디자인을 구상 중입니다...</p>
-        </div>
-        <div class="gallery" id="designGallery">
-          <!-- Images will be populated here -->
-        </div>
+        <h3>제미나이에서 생성한 이미지 불러오기</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; line-height: 1.4;">
+          '디자인 생성하기'를 누르면 입력하신 내용이 자동으로 복사되며 제미나이가 열립니다. 제미나이에서 이미지를 다운받은 뒤 아래 버튼을 눌러 배경으로 지정하세요.
+        </p>
+        <input type="file" id="localBgUpload" accept="image/*" style="display: none;" />
+        <button id="uploadBgBtn" class="secondary-btn" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--panel-border);">PC에서 다운로드한 이미지 선택</button>
       </div>
 
       <div class="export-section">
