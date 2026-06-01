@@ -745,28 +745,55 @@ if (bulkGenerateBtn) {
       generatedBanners.push({ filename, dataUrl, index: i });
     }
 
-    // Render Gallery
+    // Select the first one to show only one on canvas
+    if (parsedExcelData.length > 0) {
+      excelDataSelect.value = 0;
+      excelDataSelect.dispatchEvent(new Event('change'));
+    }
+
+    // Render Gallery as File List
+    galleryList.style.flexDirection = 'column';
+    galleryList.style.gap = '0';
+    galleryList.style.maxHeight = '200px';
+    galleryList.style.overflowY = 'auto';
+    galleryList.style.padding = '0.5rem';
     galleryList.innerHTML = '';
-    generatedBanners.forEach((banner) => {
+    
+    generatedBanners.forEach((banner, idx) => {
       const item = document.createElement('div');
-      item.className = 'gallery-item';
+      item.style.display = 'flex';
+      item.style.justifyContent = 'space-between';
+      item.style.alignItems = 'center';
+      item.style.padding = '0.5rem 0';
+      item.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
       
-      const img = document.createElement('img');
-      img.src = banner.dataUrl;
-      
-      const label = document.createElement('div');
-      label.className = 'gallery-label';
-      label.textContent = banner.filename;
-      
-      item.appendChild(img);
-      item.appendChild(label);
-      
-      // When clicked, show it on canvas by selecting from dropdown again
-      item.addEventListener('click', () => {
+      const nameSpan = document.createElement('span');
+      // Ensure unique filename string
+      const displayFilename = `${String(idx + 1).padStart(2, '0')}_${banner.filename}`;
+      nameSpan.textContent = `📄 ${displayFilename}`;
+      nameSpan.style.cursor = 'pointer';
+      nameSpan.style.color = '#60a5fa'; // Light blue for links
+      nameSpan.style.fontSize = '0.9rem';
+      nameSpan.style.textDecoration = 'underline';
+      nameSpan.title = "클릭하여 캔버스에 불러오기";
+      nameSpan.addEventListener('click', () => {
         excelDataSelect.value = banner.index;
         excelDataSelect.dispatchEvent(new Event('change'));
       });
       
+      const downloadBtn = document.createElement('button');
+      downloadBtn.textContent = '다운로드';
+      downloadBtn.className = 'secondary-btn';
+      downloadBtn.style.padding = '0.25rem 0.75rem';
+      downloadBtn.style.fontSize = '0.75rem';
+      downloadBtn.style.width = 'auto';
+      downloadBtn.style.background = 'rgba(255,255,255,0.1)';
+      downloadBtn.addEventListener('click', () => {
+        saveAs(banner.dataUrl, displayFilename);
+      });
+      
+      item.appendChild(nameSpan);
+      item.appendChild(downloadBtn);
       galleryList.appendChild(item);
     });
 
