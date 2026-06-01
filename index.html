@@ -58,53 +58,6 @@
       </div>
 
       <div class="panel-header" style="margin-top: 1.5rem;">
-        <h2>AI 디자인 생성</h2>
-        <p>원하는 테마와 느낌을 입력하세요.</p>
-      </div>
-      
-      <div class="input-group">
-        <textarea id="promptInput" placeholder="예: 우주 배경의 몽환적인 파란색 테마, 가로형 현수막 배경으로 사용할 거니까 글씨 없이 공간을 비워줘..." style="margin-bottom: 0.5rem;"></textarea>
-        <button id="generateBtn" class="primary-btn">디자인 생성하기 (Gemini 열기)</button>
-      </div>
-
-      <div class="gallery-container">
-        <h3>제미나이에서 생성한 이미지 불러오기</h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; line-height: 1.4;">
-          '디자인 생성하기'를 누르면 입력하신 내용이 자동으로 복사되며 제미나이가 열립니다. 제미나이에서 이미지를 다운받은 뒤 아래 버튼을 눌러 배경으로 지정하세요.
-        </p>
-        <input type="file" id="localBgUpload" accept="image/*" style="display: none;" />
-        <button id="uploadBgBtn" class="secondary-btn" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--panel-border);">PC에서 다운로드한 이미지 선택</button>
-      </div>
-
-      <div class="export-section">
-        <button id="exportBtn" class="primary-btn export-btn">
-          <span>고해상도 다운로드</span>
-          <span class="export-icon">↓</span>
-        </button>
-      </div>
-    </aside>
-
-    <!-- Center Panel: Canvas Area -->
-    <main class="panel center-panel">
-      <div class="canvas-wrapper">
-        <canvas id="mainCanvas"></canvas>
-      </div>
-      
-      <div class="canvas-controls">
-        <p class="instruction">
-          <span class="icon">✨</span> 
-          이미지를 클릭하면 크기 조절과 회전이 가능합니다. (Delete 키로 삭제 가능)
-        </p>
-        <div class="action-buttons">
-            <button id="deleteObjBtn" class="danger-btn">선택 삭제</button>
-            <button id="clearCanvasBtn" class="danger-btn">전체 초기화</button>
-        </div>
-      </div>
-    </main>
-
-    <!-- Right Panel: Event Info, Text -->
-    <aside class="panel right-panel">
-      <div class="panel-header">
         <h2>행사 정보 추가</h2>
       </div>
 
@@ -152,6 +105,53 @@
           <input type="color" id="dateColorPicker" value="#ffffff" style="flex-shrink: 0; width: 40px; height: 38px; padding: 0; border: none; border-radius: 8px; cursor: pointer; background: transparent;">
         </div>
         <button id="addDateBtn" class="secondary-btn">일자 캔버스에 추가</button>
+      </div>
+
+      <div class="export-section">
+        <button id="exportBtn" class="primary-btn export-btn">
+          <span>고해상도 다운로드</span>
+          <span class="export-icon">↓</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Center Panel: Canvas Area -->
+    <main class="panel center-panel">
+      <div class="canvas-wrapper">
+        <canvas id="mainCanvas"></canvas>
+      </div>
+      
+      <div class="canvas-controls">
+        <p class="instruction">
+          <span class="icon">✨</span> 
+          이미지를 클릭하면 크기 조절과 회전이 가능합니다. (Delete 키로 삭제 가능)
+        </p>
+        <div class="action-buttons">
+            <button id="deleteObjBtn" class="danger-btn">선택 삭제</button>
+            <button id="clearCanvasBtn" class="danger-btn">전체 초기화</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Panel: Event Info, Text -->
+    <aside class="panel right-panel">
+      <div class="panel-header">
+        <h2>AI 디자인 생성</h2>
+        <p>원하는 테마와 느낌을 입력하세요.</p>
+      </div>
+      
+      <div class="input-group">
+        <textarea id="promptInput" placeholder="예: 우주 배경의 몽환적인 파란색 테마, 가로형 현수막 배경으로 사용할 거니까 글씨 없이 공간을 비워줘..." style="margin-bottom: 0.5rem;"></textarea>
+        <button id="generateBtn" class="primary-btn">디자인 생성하기 (Gemini 열기)</button>
+      </div>
+
+      <div class="gallery-container">
+        <h3>제미나이에서 생성한 이미지 불러오기</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; line-height: 1.4;">
+          '디자인 생성하기'를 누르면 입력하신 내용이 자동으로 복사되며 제미나이가 열립니다. 제미나이에서 이미지를 다운받은 뒤 아래 버튼을 눌러 배경으로 지정하세요.
+        </p>
+        <input type="file" id="localBgUpload" accept="image/*" style="display: none;" />
+        <button id="uploadBgBtn" class="secondary-btn" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--panel-border);">PC에서 다운로드한 이미지 선택</button>
       </div>
 
       <div class="panel-header" style="margin-top: 1.5rem;">
