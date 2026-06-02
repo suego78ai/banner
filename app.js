@@ -427,6 +427,16 @@ function applyBackgroundToCanvas(bgUrl, callback) {
     const logicalWidth = canvas.logicalWidth || 1920;
     const logicalHeight = canvas.logicalHeight || 1080;
     
+    // Clear any previously locked background
+    canvas.setBackgroundImage(null, () => {});
+    
+    // Remove any previously added background object
+    canvas.getObjects().forEach(obj => {
+      if (obj.customType === 'backgroundImage') {
+        canvas.remove(obj);
+      }
+    });
+
     const scaleX = logicalWidth / fabricImg.width;
     const scaleY = logicalHeight / fabricImg.height;
     const scale = Math.max(scaleX, scaleY);
@@ -437,13 +447,16 @@ function applyBackgroundToCanvas(bgUrl, callback) {
       left: logicalWidth / 2,
       top: logicalHeight / 2,
       scaleX: scale,
-      scaleY: scale
+      scaleY: scale,
+      customType: 'backgroundImage'
     });
     
-    canvas.setBackgroundImage(fabricImg, () => {
-      canvas.renderAll();
-      if (callback) callback();
-    });
+    canvas.add(fabricImg);
+    canvas.sendToBack(fabricImg);
+    canvas.setActiveObject(fabricImg);
+    canvas.renderAll();
+    
+    if (callback) callback();
   });
 }
 
