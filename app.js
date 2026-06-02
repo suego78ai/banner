@@ -105,18 +105,14 @@ if (presetSizeSelect) {
       
       canvas.getObjects().forEach(obj => {
         if (obj.customType === 'eventTitle') {
-          obj.set({
-            left: canvas.logicalWidth / 2,
-            top: canvas.logicalHeight * 0.35,
-            fontSize: Math.min(160, Math.round(baseDimension * 0.15))
-          });
+          const defaultSize = Math.min(160, Math.round(baseDimension * 0.15));
+          obj.set({ left: canvas.logicalWidth / 2, top: canvas.logicalHeight * 0.35 });
+          autoFitTextWidth(obj, canvas.logicalWidth, defaultSize);
           obj.setCoords();
         } else if (obj.customType === 'eventDate') {
-          obj.set({
-            left: canvas.logicalWidth / 2,
-            top: canvas.logicalHeight * 0.6,
-            fontSize: Math.min(90, Math.round(baseDimension * 0.08))
-          });
+          const defaultSize = Math.min(90, Math.round(baseDimension * 0.08));
+          obj.set({ left: canvas.logicalWidth / 2, top: canvas.logicalHeight * 0.6 });
+          autoFitTextWidth(obj, canvas.logicalWidth, defaultSize);
           obj.setCoords();
         }
       });
@@ -125,6 +121,18 @@ if (presetSizeSelect) {
       if (typeof updateTextControls === 'function') updateTextControls();
     }
   });
+}
+
+// Helper to shrink text to fit canvas width
+function autoFitTextWidth(textObj, logicalWidth, defaultFontSize) {
+  textObj.set('fontSize', defaultFontSize);
+  textObj.initDimensions();
+  const maxWidth = logicalWidth * 0.9;
+  if (textObj.width > maxWidth) {
+    const scaleRatio = maxWidth / textObj.width;
+    textObj.set('fontSize', Math.floor(defaultFontSize * scaleRatio));
+    textObj.initDimensions();
+  }
 }
 
 // ==========================================
@@ -184,26 +192,26 @@ document.getElementById('addTitleBtn').addEventListener('click', () => {
     }
   });
 
+  const baseDimension = Math.min(logicalWidth, logicalHeight);
+  const defaultSize = Math.min(160, Math.round(baseDimension * 0.15));
+
   if (existingText) {
     existingText.set({
       text: textValue,
       fontFamily: font,
       fill: color
     });
+    autoFitTextWidth(existingText, logicalWidth, defaultSize);
     canvas.renderAll();
     canvas.setActiveObject(existingText);
   } else {
-    // Dynamically calculate font size based on canvas dimensions (approx 15% of the smaller dimension, max 160)
-    const baseDimension = Math.min(logicalWidth, logicalHeight);
-    const dynamicFontSize = Math.min(160, Math.round(baseDimension * 0.15));
-
     const text = new fabric.IText(textValue, {
       left: logicalWidth / 2,
       top: logicalHeight * 0.35,
       originX: 'center',
       originY: 'center',
       fontFamily: font,
-      fontSize: dynamicFontSize,
+      fontSize: defaultSize,
       fontWeight: 'bold',
       fill: color,
       customType: 'eventTitle',
@@ -214,6 +222,7 @@ document.getElementById('addTitleBtn').addEventListener('click', () => {
         offsetY: 4
       })
     });
+    autoFitTextWidth(text, logicalWidth, defaultSize);
     canvas.add(text);
     canvas.setActiveObject(text);
   }
@@ -241,26 +250,26 @@ document.getElementById('addDateBtn').addEventListener('click', () => {
     }
   });
 
+  const baseDimension = Math.min(logicalWidth, logicalHeight);
+  const defaultSize = Math.min(90, Math.round(baseDimension * 0.08));
+
   if (existingText) {
     existingText.set({
       text: textValue,
       fontFamily: font,
       fill: color
     });
+    autoFitTextWidth(existingText, logicalWidth, defaultSize);
     canvas.renderAll();
     canvas.setActiveObject(existingText);
   } else {
-    // Dynamically calculate font size (approx 8% of the smaller dimension, max 90)
-    const baseDimension = Math.min(logicalWidth, logicalHeight);
-    const dynamicFontSize = Math.min(90, Math.round(baseDimension * 0.08));
-
     const text = new fabric.IText(textValue, {
       left: logicalWidth / 2,
       top: logicalHeight * 0.6,
       originX: 'center',
       originY: 'center',
       fontFamily: font,
-      fontSize: dynamicFontSize,
+      fontSize: defaultSize,
       fill: color,
       customType: 'eventDate',
       shadow: new fabric.Shadow({
@@ -270,6 +279,7 @@ document.getElementById('addDateBtn').addEventListener('click', () => {
         offsetY: 2
       })
     });
+    autoFitTextWidth(text, logicalWidth, defaultSize);
     canvas.add(text);
     canvas.setActiveObject(text);
   }
