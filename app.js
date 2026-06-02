@@ -422,6 +422,31 @@ if (templateBgSelect) {
     templateBgSelect.appendChild(option);
   });
 
+function applyBackgroundToCanvas(bgUrl, callback) {
+  fabric.Image.fromURL(bgUrl, (fabricImg) => {
+    const logicalWidth = canvas.logicalWidth || 1920;
+    const logicalHeight = canvas.logicalHeight || 1080;
+    
+    const scaleX = logicalWidth / fabricImg.width;
+    const scaleY = logicalHeight / fabricImg.height;
+    const scale = Math.max(scaleX, scaleY);
+    
+    fabricImg.set({
+      originX: 'center',
+      originY: 'center',
+      left: logicalWidth / 2,
+      top: logicalHeight / 2,
+      scaleX: scale,
+      scaleY: scale
+    });
+    
+    canvas.setBackgroundImage(fabricImg, () => {
+      canvas.renderAll();
+      if (callback) callback();
+    });
+  });
+}
+
   templateBgSelect.addEventListener('change', (e) => {
     const fileUrl = e.target.value;
     if (!fileUrl) return;
@@ -429,6 +454,9 @@ if (templateBgSelect) {
     selectedBgDataUrl = fileUrl;
     templateBgPreview.src = selectedBgDataUrl;
     templateBgPreviewContainer.style.display = 'block';
+    
+    // Apply background immediately to the canvas
+    applyBackgroundToCanvas(selectedBgDataUrl);
   });
 }
 
@@ -465,53 +493,35 @@ if (generateAutoDesignBtn) {
       return;
     }
     
-    // 1. Set Background to fit logical size
-    fabric.Image.fromURL(selectedBgDataUrl, (fabricImg) => {
-      const logicalWidth = canvas.logicalWidth || 1920;
-      const logicalHeight = canvas.logicalHeight || 1080;
-      
-      const scaleX = logicalWidth / fabricImg.width;
-      const scaleY = logicalHeight / fabricImg.height;
-      const scale = Math.max(scaleX, scaleY);
-      
-      fabricImg.set({
-        originX: 'center',
-        originY: 'center',
-        left: logicalWidth / 2,
-        top: logicalHeight / 2,
-        scaleX: scale,
-        scaleY: scale
-      });
-      
-      canvas.setBackgroundImage(fabricImg, () => {
-        // Remove placeholder text
-        canvas.getObjects().forEach(obj => {
-          if (obj.text === '여기에 디자인이 배치됩니다') {
-            canvas.remove(obj);
-          }
-        });
-        canvas.renderAll();
-        
-        // 2. Clear existing items (optional, but good for "Auto Generation" feel to start fresh)
-        // Except we might want to keep the logo. For now, let's just add text on top.
-        
-        // 3. Trigger Add Title
-        const addTitleBtn = document.getElementById('addTitleBtn');
-        const eventTitleInput = document.getElementById('eventTitleInput');
-        if (addTitleBtn && eventTitleInput && eventTitleInput.value.trim() !== '') {
-          addTitleBtn.click();
+    // 1. Set Background to fit logical size and add texts
+    applyBackgroundToCanvas(selectedBgDataUrl, () => {
+      // Remove placeholder text
+      canvas.getObjects().forEach(obj => {
+        if (obj.text === '여기에 디자인이 배치됩니다') {
+          canvas.remove(obj);
         }
+      });
+      canvas.renderAll();
+      
+      // 2. Clear existing items (optional, but good for "Auto Generation" feel to start fresh)
+      // Except we might want to keep the logo. For now, let's just add text on top.
+      
+      // 3. Trigger Add Title
+      const addTitleBtn = document.getElementById('addTitleBtn');
+      const eventTitleInput = document.getElementById('eventTitleInput');
+      if (addTitleBtn && eventTitleInput && eventTitleInput.value.trim() !== '') {
+        addTitleBtn.click();
+      }
 
-        // 4. Trigger Add Date
-        const addDateBtn = document.getElementById('addDateBtn');
-        const eventDateInput = document.getElementById('eventDateInput');
-        if (addDateBtn && eventDateInput && eventDateInput.value.trim() !== '') {
-          // Add a small delay so they don't exactly completely overlap perfectly and block rendering
-          setTimeout(() => {
-            addDateBtn.click();
-          }, 100);
-        }
-      });
+      // 4. Trigger Add Date
+      const addDateBtn = document.getElementById('addDateBtn');
+      const eventDateInput = document.getElementById('eventDateInput');
+      if (addDateBtn && eventDateInput && eventDateInput.value.trim() !== '') {
+        // Add a small delay so they don't exactly completely overlap perfectly and block rendering
+        setTimeout(() => {
+          addDateBtn.click();
+        }, 100);
+      }
     });
   });
 }
