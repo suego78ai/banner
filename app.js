@@ -508,14 +508,6 @@ if (generateAutoDesignBtn) {
     
     // 1. Set Background to fit logical size and add texts
     applyBackgroundToCanvas(selectedBgDataUrl, () => {
-      // Remove placeholder text
-      canvas.getObjects().forEach(obj => {
-        if (obj.text === '여기에 디자인이 배치됩니다') {
-          canvas.remove(obj);
-        }
-      });
-      canvas.renderAll();
-      
       // 2. Clear existing items (optional, but good for "Auto Generation" feel to start fresh)
       // Except we might want to keep the logo. For now, let's just add text on top.
       
@@ -565,18 +557,6 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   link.click();
   document.body.removeChild(link);
 });
-
-// Initial greeting text
-const initText = new fabric.IText('여기에 디자인이 배치됩니다', {
-  left: 1920 / 2,
-  top: 1080 / 2,
-  originX: 'center',
-  originY: 'center',
-  fontFamily: 'Inter',
-  fontSize: 60,
-  fill: 'rgba(255,255,255,0.3)'
-});
-canvas.add(initText);
 
 // ==========================================
 // Left Panel: Logo Upload (From Repository)
