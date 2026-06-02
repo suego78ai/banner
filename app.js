@@ -459,30 +459,111 @@ if (directBgUploadBtn && directBgUpload) {
   });
 }
 
+const apiKeyInput = document.getElementById('geminiApiKey');
+if (apiKeyInput) {
+  const savedKey = localStorage.getItem('geminiApiKey');
+  if (savedKey) apiKeyInput.value = savedKey;
+  
+  apiKeyInput.addEventListener('change', (e) => {
+    localStorage.setItem('geminiApiKey', e.target.value.trim());
+  });
+}
+
+function extractDepartment(title) {
+  const match = title.match(/([가-힣A-Za-z0-9]+(?:학과|학부|과|전공|대학))/);
+  return match ? match[1] : null;
+}
+
+async function generateAIBackground(apiKey, title) {
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+  
+  const dept = extractDepartment(title);
+  let prompt = "행사 현수막 배경. 중앙은 글씨가 들어갈 수 있게 어둡고 깔끔하게 처리하고, 가장자리에 세련된 장식을 넣어줘.";
+  if (dept) {
+    prompt = `${dept} 행사에 어울리는 세련되고 전문적인 현수막 배경 이미지. 중앙 부분은 텍스트가 잘 보이도록 깔끔하게 처리해주세요.`;
+  }
+
+  let aspectRatio = "16:9";
+  const ratio = canvas.logicalWidth / canvas.logicalHeight;
+  if (ratio < 0.6) aspectRatio = "9:16";
+  else if (ratio < 0.9) aspectRatio = "3:4";
+  else if (ratio < 1.1) aspectRatio = "1:1";
+  else if (ratio < 1.5) aspectRatio = "4:3";
+
+  const payload = {
+    instances: [{ prompt: prompt }],
+    parameters: {
+      sampleCount: 1,
+      aspectRatio: aspectRatio
+    }
+  };
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error?.message || "알 수 없는 오류 발생");
+  }
+
+  if (data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded) {
+    return "data:image/jpeg;base64," + data.predictions[0].bytesBase64Encoded;
+  }
+  
+  throw new Error("이미지 데이터를 받지 못했습니다.");
+}
+
 if (generateAutoDesignBtn) {
-  generateAutoDesignBtn.addEventListener('click', () => {
-    if (!selectedBgDataUrl) {
-      alert("먼저 '저장소 배경 선택 (bg 폴더)'에서 현수막 배경을 골라주세요!");
+  generateAutoDesignBtn.addEventListener('click', async () => {
+    const titleInput = document.getElementById('eventTitleInput');
+    const titleText = titleInput ? titleInput.value.trim() : '';
+    
+    const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+    const loadingOverlay = document.getElementById('aiLoadingOverlay');
+
+    let bgUrlToApply = selectedBgDataUrl;
+
+    if (apiKey) {
+      if (!titleText) {
+        alert("행사 제목을 입력해야 AI가 학과명 등 맥락에 맞는 배경을 자동 생성할 수 있습니다!");
+        return;
+      }
+      try {
+        if (loadingOverlay) loadingOverlay.style.display = 'flex';
+        bgUrlToApply = await generateAIBackground(apiKey, titleText);
+        
+        selectedBgDataUrl = bgUrlToApply;
+        const templateBgPreview = document.getElementById('templateBgPreview');
+        const templateBgPreviewContainer = document.getElementById('templateBgPreviewContainer');
+        if (templateBgPreview) {
+          templateBgPreview.src = bgUrlToApply;
+          templateBgPreviewContainer.style.display = 'block';
+        }
+      } catch (err) {
+        console.error(err);
+        alert("AI 이미지 생성 실패: " + err.message + "\n\n기존에 선택된 배경(있는 경우)을 사용합니다.");
+      } finally {
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+      }
+    }
+
+    if (!bgUrlToApply) {
+      alert("API 키를 입력하지 않으셨다면, 먼저 '현수막 배경 선택'에서 배경을 골라주세요!");
       return;
     }
     
-    // 1. Set Background to fit logical size and add texts
-    applyBackgroundToCanvas(selectedBgDataUrl, () => {
-      // 2. Clear existing items (optional, but good for "Auto Generation" feel to start fresh)
-      // Except we might want to keep the logo. For now, let's just add text on top.
-      
-      // 3. Trigger Add Title
+    applyBackgroundToCanvas(bgUrlToApply, () => {
       const addTitleBtn = document.getElementById('addTitleBtn');
-      const eventTitleInput = document.getElementById('eventTitleInput');
-      if (addTitleBtn && eventTitleInput && eventTitleInput.value.trim() !== '') {
+      if (addTitleBtn && titleText !== '') {
         addTitleBtn.click();
       }
 
-      // 4. Trigger Add Date
       const addDateBtn = document.getElementById('addDateBtn');
       const eventDateInput = document.getElementById('eventDateInput');
       if (addDateBtn && eventDateInput && eventDateInput.value.trim() !== '') {
-        // Add a small delay so they don't exactly completely overlap perfectly and block rendering
         setTimeout(() => {
           addDateBtn.click();
         }, 100);
