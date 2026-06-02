@@ -38,64 +38,12 @@ setTimeout(resizeCanvasVisual, 100);
 // ==========================================
 // Right Panel: Size Configuration
 // ==========================================
-const categorySelect = document.getElementById('categorySelect');
-const presetSizeSelect = document.getElementById('presetSize');
+const canvasSizeSelect = document.getElementById('canvasSizeSelect');
 
-const sizeData = {
-  banner: [
-    { label: "8100*1100mm - 정문(풋살)", value: "8100x1100" },
-    { label: "7900*1100mm - 정문(기숙사)", value: "7900x1100" },
-    { label: "7000*900mm - 3~5호관", value: "7000x900" },
-    { label: "5000*600mm - 8호관", value: "5000x600" },
-    { label: "5000*700mm - 세미나실", value: "5000x700" },
-    { label: "4000*600mm - 강의실", value: "4000x600" },
-    { label: "입시면접용 실내외", value: "custom" }
-  ],
-  xbanner: [
-    { label: "600*1800mm - 실내외", value: "600x1800" }
-  ],
-  notice: [
-    { label: "A1 (610*914mm) - 실내외", value: "610x914" },
-    { label: "A2 (420*594mm) - 실내외", value: "420x594" }
-  ],
-  poster: [
-    { label: "A1 (610*914mm) - 실내외", value: "610x914" },
-    { label: "A2 (420*594mm) - 실내외", value: "420x594" }
-  ],
-  signboard: [
-    { label: "A1 (610*914mm) - 실내외", value: "610x914" },
-    { label: "A2 (420*594mm) - 실내외", value: "420x594" }
-  ],
-  prize: [
-    { label: "A1 (610*914mm) - 실내외", value: "610x914" },
-    { label: "A2 (420*594mm) - 실내외", value: "420x594" }
-  ]
-};
-
-if (categorySelect) {
-  categorySelect.addEventListener('change', (e) => {
-    const category = e.target.value;
-    presetSizeSelect.innerHTML = '<option value="" disabled selected>상세 사이즈를 선택하세요</option>';
-    
-    if (sizeData[category]) {
-      presetSizeSelect.disabled = false;
-      sizeData[category].forEach(item => {
-        const opt = document.createElement('option');
-        opt.value = item.value;
-        opt.textContent = item.label;
-        presetSizeSelect.appendChild(opt);
-      });
-
-    } else {
-      presetSizeSelect.disabled = true;
-    }
-  });
-}
-
-if (presetSizeSelect) {
-  presetSizeSelect.addEventListener('change', (e) => {
+if (canvasSizeSelect) {
+  canvasSizeSelect.addEventListener('change', (e) => {
     const val = e.target.value;
-    if (val && val !== 'custom') {
+    if (val) {
       const [w, h] = val.split('x');
       canvas.logicalWidth = parseInt(w, 10);
       canvas.logicalHeight = parseInt(h, 10);
@@ -113,6 +61,18 @@ if (presetSizeSelect) {
           const defaultSize = Math.min(90, Math.round(baseDimension * 0.08));
           obj.set({ left: canvas.logicalWidth / 2, top: canvas.logicalHeight * 0.6 });
           autoFitTextWidth(obj, canvas.logicalWidth, defaultSize);
+          obj.setCoords();
+        } else if (obj.customType === 'backgroundImage') {
+          const scaleX = canvas.logicalWidth / obj.width;
+          const scaleY = canvas.logicalHeight / obj.height;
+          const scale = Math.max(scaleX, scaleY);
+          
+          obj.set({
+            left: canvas.logicalWidth / 2,
+            top: canvas.logicalHeight / 2,
+            scaleX: scale,
+            scaleY: scale
+          });
           obj.setCoords();
         }
       });
