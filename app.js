@@ -474,6 +474,12 @@ if (generateAutoDesignBtn) {
       });
       
       canvas.setBackgroundImage(fabricImg, () => {
+        // Remove placeholder text
+        canvas.getObjects().forEach(obj => {
+          if (obj.text === '여기에 디자인이 배치됩니다') {
+            canvas.remove(obj);
+          }
+        });
         canvas.renderAll();
         
         // 2. Clear existing items (optional, but good for "Auto Generation" feel to start fresh)
