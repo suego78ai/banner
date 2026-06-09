@@ -356,31 +356,76 @@ window.addEventListener("keydown", (e) => {
       });
     }
   }
-});
-
+});// ==========================================
+// Right Panel: AI Auto Design & Encrypted API Key
 // ==========================================
-// Right Panel: Auto Design Generation (Template Mode)
-// ==========================================
-const templateBgSelect = document.getElementById('templateBgSelect');
-const directBgUpload = document.getElementById('directBgUpload');
-const directBgUploadBtn = document.getElementById('directBgUploadBtn');
-const templateBgPreview = document.getElementById('templateBgPreview');
-const templateBgPreviewContainer = document.getElementById('templateBgPreviewContainer');
+const apiKeyInput = document.getElementById('geminiApiKey');
+const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+const resetApiKeyBtn = document.getElementById('resetApiKeyBtn');
+const apiKeySuccess = document.getElementById('apiKeySuccess');
+const apiKeyInputBox = document.getElementById('apiKeyInputBox');
+const apiKeyDesc = document.getElementById('apiKeyDesc');
 const generateAutoDesignBtn = document.getElementById('generateAutoDesignBtn');
 
-let selectedBgDataUrl = null;
+// Simple Obfuscation to prevent plain-text API key in LocalStorage
+const OBFUSCATION_KEY = "BannerMakerAI2026Sec!";
 
-const bgFiles = [
-  "sample_bg.jpg"
-];
+function encryptKey(text) {
+  let result = "";
+  for (let i = 0; i < text.length; i++) {
+    result += String.fromCharCode(text.charCodeAt(i) ^ OBFUSCATION_KEY.charCodeAt(i % OBFUSCATION_KEY.length));
+  }
+  return btoa(encodeURIComponent(result));
+}
 
-if (templateBgSelect) {
-  bgFiles.forEach(file => {
-    const option = document.createElement('option');
-    option.value = `bg/${file}`;
-    option.textContent = file;
-    templateBgSelect.appendChild(option);
+function decryptKey(encoded) {
+  try {
+    let text = decodeURIComponent(atob(encoded));
+    let result = "";
+    for (let i = 0; i < text.length; i++) {
+      result += String.fromCharCode(text.charCodeAt(i) ^ OBFUSCATION_KEY.charCodeAt(i % OBFUSCATION_KEY.length));
+    }
+    return result;
+  } catch (e) {
+    return "";
+  }
+}
+
+function updateApiKeyUI() {
+  const savedEncrypted = localStorage.getItem('encGeminiApiKey');
+  if (savedEncrypted) {
+    apiKeyInputBox.style.display = 'none';
+    apiKeyDesc.style.display = 'none';
+    apiKeySuccess.style.display = 'flex';
+  } else {
+    apiKeyInputBox.style.display = 'flex';
+    apiKeyDesc.style.display = 'block';
+    apiKeySuccess.style.display = 'none';
+    apiKeyInput.value = '';
+  }
+}
+
+if (apiKeyInput && saveApiKeyBtn && resetApiKeyBtn) {
+  // Clear old unencrypted key if exists
+  localStorage.removeItem('geminiApiKey');
+  updateApiKeyUI();
+
+  saveApiKeyBtn.addEventListener('click', () => {
+    const val = apiKeyInput.value.trim();
+    if (val) {
+      const encrypted = encryptKey(val);
+      localStorage.setItem('encGeminiApiKey', encrypted);
+      updateApiKeyUI();
+    } else {
+      alert("API 키를 입력해주세요.");
+    }
   });
+
+  resetApiKeyBtn.addEventListener('click', () => {
+    localStorage.removeItem('encGeminiApiKey');
+    updateApiKeyUI();
+  });
+}
 
 function applyBackgroundToCanvas(bgUrl, callback) {
   fabric.Image.fromURL(bgUrl, (fabricImg) => {
@@ -417,55 +462,6 @@ function applyBackgroundToCanvas(bgUrl, callback) {
     canvas.renderAll();
     
     if (callback) callback();
-  });
-}
-
-  templateBgSelect.addEventListener('change', (e) => {
-    const fileUrl = e.target.value;
-    if (!fileUrl) return;
-
-    selectedBgDataUrl = fileUrl;
-    templateBgPreview.src = selectedBgDataUrl;
-    templateBgPreviewContainer.style.display = 'block';
-    
-    // Apply background immediately to the canvas
-    applyBackgroundToCanvas(selectedBgDataUrl);
-  });
-}
-
-if (directBgUploadBtn && directBgUpload) {
-  directBgUploadBtn.addEventListener('click', () => {
-    directBgUpload.click();
-  });
-
-  directBgUpload.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (f) => {
-      const fileUrl = f.target.result;
-      
-      const option = document.createElement('option');
-      option.value = fileUrl;
-      option.textContent = `[내 PC] ${file.name}`;
-      templateBgSelect.appendChild(option);
-      
-      templateBgSelect.value = fileUrl;
-      templateBgSelect.dispatchEvent(new Event('change'));
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  });
-}
-
-const apiKeyInput = document.getElementById('geminiApiKey');
-if (apiKeyInput) {
-  const savedKey = localStorage.getItem('geminiApiKey');
-  if (savedKey) apiKeyInput.value = savedKey;
-  
-  apiKeyInput.addEventListener('change', (e) => {
-    localStorage.setItem('geminiApiKey', e.target.value.trim());
   });
 }
 
@@ -520,40 +516,38 @@ if (generateAutoDesignBtn) {
   generateAutoDesignBtn.addEventListener('click', async () => {
     const titleInput = document.getElementById('eventTitleInput');
     const titleText = titleInput ? titleInput.value.trim() : '';
-    
-    const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
     const loadingOverlay = document.getElementById('aiLoadingOverlay');
-
-    let bgUrlToApply = selectedBgDataUrl;
-
-    if (apiKey) {
-      if (!titleText) {
-        alert("행사 제목을 입력해야 AI가 학과명 등 맥락에 맞는 배경을 자동 생성할 수 있습니다!");
-        return;
-      }
-      try {
-        if (loadingOverlay) loadingOverlay.style.display = 'flex';
-        bgUrlToApply = await generateAIBackground(apiKey, titleText);
-        
-        selectedBgDataUrl = bgUrlToApply;
-        const templateBgPreview = document.getElementById('templateBgPreview');
-        const templateBgPreviewContainer = document.getElementById('templateBgPreviewContainer');
-        if (templateBgPreview) {
-          templateBgPreview.src = bgUrlToApply;
-          templateBgPreviewContainer.style.display = 'block';
-        }
-      } catch (err) {
-        console.error(err);
-        alert("AI 이미지 생성 실패: " + err.message + "\n\n기존에 선택된 배경(있는 경우)을 사용합니다.");
-      } finally {
-        if (loadingOverlay) loadingOverlay.style.display = 'none';
-      }
-    }
-
-    if (!bgUrlToApply) {
-      alert("API 키를 입력하지 않으셨다면, 먼저 '현수막 배경 선택'에서 배경을 골라주세요!");
+    
+    const savedEncrypted = localStorage.getItem('encGeminiApiKey');
+    if (!savedEncrypted) {
+      alert("오른쪽 상단에 Google Gemini API 키를 먼저 등록(저장)해주세요!");
       return;
     }
+    
+    const apiKey = decryptKey(savedEncrypted);
+    if (!apiKey) {
+      alert("저장된 API 키가 손상되었습니다. 초기화 후 다시 입력해주세요.");
+      return;
+    }
+
+    if (!titleText) {
+      alert("행사 제목을 입력해야 AI가 학과명 등 맥락에 맞는 배경을 자동 생성할 수 있습니다!");
+      return;
+    }
+
+    let bgUrlToApply = null;
+    try {
+      if (loadingOverlay) loadingOverlay.style.display = 'flex';
+      bgUrlToApply = await generateAIBackground(apiKey, titleText);
+    } catch (err) {
+      console.error(err);
+      alert("AI 이미지 생성 실패: " + err.message);
+      return;
+    } finally {
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
+    }
+
+    if (!bgUrlToApply) return;
     
     applyBackgroundToCanvas(bgUrlToApply, () => {
       const addTitleBtn = document.getElementById('addTitleBtn');
