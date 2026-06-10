@@ -471,45 +471,66 @@ function extractDepartment(title) {
 }
 
 async function generateAIBackground(apiKey, title) {
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+  // 1. 무료 Gemini 1.5 Flash 모델을 호출하여 영문 디자인 프롬프트 생성
+  const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   
-  const dept = extractDepartment(title);
-  let prompt = "행사 현수막 배경. 중앙은 글씨가 들어갈 수 있게 어둡고 깔끔하게 처리하고, 가장자리에 세련된 장식을 넣어줘.";
-  if (dept) {
-    prompt = `${dept} 행사에 어울리는 세련되고 전문적인 현수막 배경 이미지. 중앙 부분은 텍스트가 잘 보이도록 깔끔하게 처리해주세요.`;
-  }
-
-  let aspectRatio = "16:9";
-  const ratio = canvas.logicalWidth / canvas.logicalHeight;
-  if (ratio < 0.6) aspectRatio = "9:16";
-  else if (ratio < 0.9) aspectRatio = "3:4";
-  else if (ratio < 1.1) aspectRatio = "1:1";
-  else if (ratio < 1.5) aspectRatio = "4:3";
+  const dept = extractDepartment(title) || "Event";
+  
+  // 프롬프트 엔지니어링: 무료 AI가 완벽한 프롬프트를 짜도록 명령
+  const promptRequest = `Write a single, highly detailed English prompt for an AI image generator to create a professional banner background for a ${dept}. The design must be modern, high-quality, elegant, and visually stunning. CRITICAL: Keep the central area clean and somewhat dark so overlay text will be highly legible. Output ONLY the English prompt string, nothing else.`;
 
   const payload = {
-    instances: [{ prompt: prompt }],
-    parameters: {
-      sampleCount: 1,
-      aspectRatio: aspectRatio
+    contents: [{ parts: [{ text: promptRequest }] }],
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 150
     }
   };
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error?.message || "알 수 없는 오류 발생");
+  let imagePrompt = "";
+  try {
+    const response = await fetch(geminiEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error?.message || "텍스트 프롬프트 생성 실패");
+    }
+    imagePrompt = data.candidates[0].content.parts[0].text.trim();
+  } catch (e) {
+    console.error("Gemini Flash Error:", e);
+    // API 통신 실패 시 사용할 기본 프롬프트(Fallback)
+    imagePrompt = `A modern, abstract, and high-quality background for a ${dept} banner. Dark and clean center for text placement. Beautiful lighting and professional textures.`;
   }
 
-  if (data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded) {
-    return "data:image/jpeg;base64," + data.predictions[0].bytesBase64Encoded;
-  }
+  // 2. 캔버스 비율에 맞춘 해상도 계산 (무료 렌더러용)
+  let w = 1920, h = 1080;
+  const ratio = canvas.logicalWidth / canvas.logicalHeight;
   
-  throw new Error("이미지 데이터를 받지 못했습니다.");
+  if (ratio < 0.6) { w = 600; h = 1800; } // X배너 (1:3 비율 근사치, 고화질 렌더링을 위해 해상도 최적화)
+  else if (ratio < 0.9) { w = 1024; h = 1280; } // 세로형 포스터
+  else if (ratio < 1.1) { w = 1024; h = 1024; } // 정방형
+  else if (ratio < 1.5) { w = 1280; h = 1024; } // 4:3
+  else { w = 1920; h = 1080; } // 가로형 웹 현수막
+  
+  // X배너(600x1800)의 경우 Pollinations가 과하게 길면 크롭할 수 있으므로 최대 렌더링 해상도를 720x2160 비율로 요청
+  if (ratio < 0.6) { w = 720; h = 2160; }
+
+  // 3. 무료 이미지 렌더링 서버(Pollinations.ai)에 요청하여 이미지 가져오기
+  // nologo=true로 워터마크 제거, 랜덤 시드를 줘서 매번 다른 이미지가 나오도록 설정
+  const randomSeed = Math.floor(Math.random() * 1000000);
+  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=${w}&height=${h}&seed=${randomSeed}&nologo=true`;
+
+  try {
+    const imgRes = await fetch(pollinationsUrl);
+    if (!imgRes.ok) throw new Error("이미지 렌더링 서버 에러");
+    const blob = await imgRes.blob();
+    return URL.createObjectURL(blob);
+  } catch (e) {
+    throw new Error("이미지 다운로드 실패: " + e.message);
+  }
 }
 
 if (generateAutoDesignBtn) {
